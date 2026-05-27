@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKCE CGPA Tracker - M. Kumarasamy College of Engineering</title>
+    <meta name="description"
+        content="An advanced, premium CGPA & SGPA calculator specifically designed for the students of M. Kumarasamy College of Engineering. Track grades, analyze academic performance, and export transcripts.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Print Only Header -->
+    <div class="print-report-header" id="print-header">
+        <h1>M. Kumarasamy College of Engineering</h1>
+        <p style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 10pt; color: #555;">Autonomous
+            Institution • Affiliated to Anna University</p>
+        <h2 style="margin-top: 15px; font-size: 14pt;">Academic Performance Transcript Report</h2>
+        <div class="metadata">
+            <div><span>Institution:</span> M. Kumarasamy College of Engineering</div>
+            <div><span>Department:</span> <span id="print-dept">-</span></div>
+            <div><span>Academic Year:</span> <span id="print-year">-</span></div>
+            <div><span>Semester:</span> <span id="print-sem">-</span></div>
+            <div><span>Date of Export:</span> <span id="print-date">-</span></div>
+            <div><span>Calculated SGPA:</span> <span id="print-sgpa" style="color: #059669; font-weight: bold;">-</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="app-container">
+
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="brand-section">
+                <div class="brand-logo-container">K</div>
+                <div class="brand-info">
+                    <h1 id="app-title">MKCE CGPA Tracker</h1>
+                    <p id="app-subtitle">M. Kumarasamy College of Engineering</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="btn-reset-app" title="Reset all data to default">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                    </svg>
+                    Reset App
+                </button>
+                <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Light/Dark Theme">
+                    <!-- Sun Icon -->
+                    <svg class="sun-icon" style="display: none;" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <!-- Moon Icon -->
+                    <svg class="moon-icon" viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD GRID -->
+        <main class="dashboard-grid">
+
+            <!-- LEFT PANEL: CURRICULUM SELECTORS -->
+            <aside class="sidebar-panel">
+                <div class="sidebar-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                        <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+                    </svg>
+                    Academic Filters
+                </div>
+
+                <!-- Select Institution (Locked) -->
+                <div class="form-group">
+                    <label for="select-institution">Institution</label>
+                    <div class="select-wrapper">
+                        <select id="select-institution" class="custom-select" disabled>
+                            <option value="mkce" selected>M. Kumarasamy College of Engineering</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Select Department -->
+                <div class="form-group">
+                    <label for="select-department">Department</label>
+                    <div class="select-wrapper">
+                        <select id="select-department" class="custom-select">
+                            <option value="ai-ds">Artificial Intelligence and Data Science</option>
+                            <option value="ai-ml">Artificial Intelligence and Machine Learning</option>
+                            <option value="civil">Civil Engineering</option>
+                            <option value="cs-bs">Computer Science and Business Systems</option>
+                            <option value="cse" selected>Computer Science and Engineering</option>
+                            <option value="eee">Electrical and Electronics Engineering</option>
+                            <option value="ece">Electronics and Communication Engineering</option>
+                            <option value="vlsi">Electronics Engineering (VLSI)</option>
+                            <option value="it">Information Technology</option>
+                            <option value="mech">Mechanical Engineering</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Select Year -->
+                <div class="form-group">
+                    <label for="select-year">Year of Study</label>
+                    <div class="select-wrapper">
+                        <select id="select-year" class="custom-select">
+                            <option value="1" selected>1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Select Semester -->
+                <div class="form-group">
+                    <label for="select-semester">Semester</label>
+                    <div class="select-wrapper">
+                        <select id="select-semester" class="custom-select">
+                            <option value="1" selected>Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quick Selection Overview Stats -->
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Grading System</span>
+                        <span class="stat-value">Autonomous 10-Point</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Default Scale</span>
+                        <span class="stat-value highlight">O to U Grades</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Credits Cap</span>
+                        <span class="stat-value">Dynamic</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- RIGHT PANEL: DASHBOARD TABS & CONTENT -->
+            <div class="main-content">
+
+                <!-- Tab Switching Navigation -->
+                <nav class="tab-navigation" role="tablist">
+                    <button class="tab-btn active" id="tab-calc" role="tab" aria-selected="true"
+                        aria-controls="calc-card">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <line x1="9" y1="9" x2="15" y2="9" />
+                            <line x1="9" y1="13" x2="15" y2="13" />
+                            <line x1="9" y1="17" x2="15" y2="17" />
+                        </svg>
+                        Semester Calculator
+                    </button>
+                    <button class="tab-btn" id="tab-history" role="tab" aria-selected="false"
+                        aria-controls="history-card">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M12 20v-6M6 20V10M18 20V4" />
+                        </svg>
+                        Cumulative CGPA Dashboard
+                    </button>
+                    <button class="tab-btn" id="tab-settings" role="tab" aria-selected="false"
+                        aria-controls="settings-card">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                        Grading Settings
+                    </button>
+                </nav>
+
+                <!-- TAB 1: SEMESTER CALCULATOR -->
+                <section class="glass-card active" id="calc-card" role="tabpanel">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title" id="calc-title">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <polyline points="10 9 9 9 8 9" />
+                                </svg>
+                                Course Sheet
+                            </h2>
+                            <p class="card-subtitle" id="calc-subtitle">Manage courses, credit values, and grade results
+                                for CSE - Sem 1</p>
+                        </div>
+                        <button class="btn btn-secondary" id="btn-load-preset">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Reload Preset
+                        </button>
+                    </div>
+
+                    <!-- Courses Table -->
+                    <div class="table-responsive">
+                        <table class="course-table" id="courses-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%">Course Code</th>
+                                    <th style="width: 50%">Course Title</th>
+                                    <th style="width: 15%">Credits</th>
+                                    <th style="width: 15%">Grade</th>
+                                    <th style="width: 5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="courses-tbody">
+                                <!-- Dynamic rows populated via Javascript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Table Action Buttons -->
+                    <div class="table-actions">
+                        <button class="btn btn-secondary" id="btn-add-row">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Add Course Row
+                        </button>
+                        <div class="table-btn-group">
+                            <button class="btn btn-danger" id="btn-clear-grades">Clear Grades</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Calculation Result Panel -->
+                    <hr style="border: none; border-top: 1px solid var(--panel-border); margin: 30px 0;">
+
+                    <div class="scoreboard-section">
+                        <!-- Left Widget: SGPA Score Circular Gauge -->
+                        <div class="score-widget-card">
+                            <div class="score-details">
+                                <h3 id="sgpa-status-label">Semester SGPA</h3>
+                                <p id="sgpa-status-desc">Fill in grades to see your computed semester grade point
+                                    average.</p>
+                                <button class="btn btn-primary" id="btn-save-semester" style="margin-top: 15px;">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                        <polyline points="17 21 17 13 7 13 7 21" />
+                                        <polyline points="7 3 7 8 15 8" />
+                                    </svg>
+                                    Save Semester
+                                </button>
+                            </div>
+                            <div class="gpa-gauge-container">
+                                <svg class="gpa-gauge-svg">
+                                    <defs>
+                                        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="var(--accent-primary)"></stop>
+                                            <stop offset="100%" stop-color="var(--accent-secondary)"></stop>
+                                        </linearGradient>
+                                    </defs>
+                                    <circle class="gauge-track" cx="70" cy="70" r="60"></circle>
+                                    <circle class="gauge-fill" id="sgpa-gauge-fill" cx="70" cy="70" r="60"></circle>
+                                </svg>
+                                <div class="gauge-value" id="sgpa-val">0.00</div>
+                                <div class="gauge-label">SGPA</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Widget: Quick Mini Stats -->
+                        <div class="grid-stats-box">
+                            <div class="min-stat-box">
+                                <span class="min-stat-num" id="stat-total-credits">0</span>
+                                <span class="min-stat-lbl">Total Credits</span>
+                            </div>
+                            <div class="min-stat-box">
+                                <span class="min-stat-num" id="stat-grade-points">0.0</span>
+                                <span class="min-stat-lbl">Grade Points</span>
+                            </div>
+                            <div class="min-stat-box">
+                                <span class="min-stat-num" id="stat-courses-count">0</span>
+                                <span class="min-stat-lbl">Total Subjects</span>
+                            </div>
+                            <div class="min-stat-box">
+                                <span class="min-stat-num" id="stat-gpa-scale">10.0</span>
+                                <span class="min-stat-lbl">Maximum Scale</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: CUMULATIVE CGPA DASHBOARD -->
+                <section class="glass-card" id="history-card" role="tabpanel">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                                    <path d="M2 12h20" />
+                                    <path
+                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                </svg>
+                                Cumulative CGPA Dashboard
+                            </h2>
+                            <p class="card-subtitle">Aggregate multiple semesters and review your overall academic
+                                trajectory</p>
+                        </div>
+                        <button class="btn btn-secondary" id="btn-export-pdf">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M6 9V2h12v7" />
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                <rect x="6" y="14" width="12" height="8" />
+                            </svg>
+                            Export PDF Report
+                        </button>
+                    </div>
+
+                    <!-- CGPA Circular Gauge + Overview -->
+                    <div class="scoreboard-section" style="margin-bottom: 30px;">
+                        <div class="score-widget-card"
+                            style="border-color: rgba(6, 182, 212, 0.2); background: rgba(6, 182, 212, 0.03);">
+                            <div class="score-details">
+                                <h3>Cumulative CGPA</h3>
+                                <p>This represents the combined grade average weighted across all saved semesters below.
+                                </p>
+                                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                                        <strong>Active Semesters:</strong> <span id="cgpa-active-sems">0</span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                                        <strong>Saved Credits:</strong> <span id="cgpa-total-credits">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gpa-gauge-container">
+                                <svg class="gpa-gauge-svg">
+                                    <circle class="gauge-track" cx="70" cy="70" r="60"></circle>
+                                    <circle class="gauge-fill" id="cgpa-gauge-fill" cx="70" cy="70" r="60"
+                                        style="stroke: var(--accent-secondary);"></circle>
+                                </svg>
+                                <div class="gauge-value" id="cgpa-val">0.00</div>
+                                <div class="gauge-label">CGPA</div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Performance Box -->
+                        <div class="min-stat-box" style="justify-content: center; text-align: center;">
+                            <span class="min-stat-lbl">Academic Classification</span>
+                            <div class="min-stat-num" id="cgpa-classification"
+                                style="font-size: 1.4rem; color: var(--accent-success); margin: 5px 0;">N/A</div>
+                            <span class="min-stat-lbl" id="cgpa-classification-sub">Save semesters to calculate</span>
+                        </div>
+                    </div>
+
+                    <!-- Trend Chart SVG -->
+                    <div class="card-header" style="margin-bottom: 12px;">
+                        <h3 class="card-title" style="font-size: 1.1rem;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                <polyline points="17 6 23 6 23 12" />
+                            </svg>
+                            GPA Trend Chart
+                        </h3>
+                    </div>
+                    <div class="chart-container-svg">
+                        <svg class="chart-svg" id="gpa-chart">
+                            <defs>
+                                <linearGradient id="chartAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="var(--accent-primary)"></stop>
+                                    <stop offset="100%" stop-color="transparent"></stop>
+                                </linearGradient>
+                            </defs>
+                            <g id="chart-grid-lines"></g>
+                            <path class="chart-area" id="chart-area-path" d=""></path>
+                            <path class="chart-line" id="chart-line-path" d=""></path>
+                            <g id="chart-points-group"></g>
+                            <g id="chart-labels-group"></g>
+                        </svg>
+                    </div>
+
+                    <!-- Saved Semesters Timeline -->
+                    <div class="card-header" style="margin-bottom: 12px;">
+                        <h3 class="card-title" style="font-size: 1.1rem;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Saved Semesters
+                        </h3>
+                    </div>
+                    <div class="history-timeline" id="history-timeline-container">
+                        <!-- Dynamic timeline items loaded via JS -->
+                        <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem;"
+                            id="no-history-text">
+                            No semesters saved yet. Perform a calculation and click "Save Semester" to start tracking.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: CONFIGURATION AND GRADING SETTINGS -->
+                <section class="glass-card" id="settings-card" role="tabpanel">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path
+                                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                </svg>
+                                Grading System Settings
+                            </h2>
+                            <p class="card-subtitle">Verify and customize grade-to-point mappings for calculations</p>
+                        </div>
+                    </div>
+
+                    <div class="config-grid">
+                        <!-- Left Configuration Box: Grade Point Mappings -->
+                        <div class="config-box">
+                            <h3>MKCE Autonomous Scale Mappings</h3>
+                            <p
+                                style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.4;">
+                                Change points mapped to each letter grade. These mappings are used to compute your SGPA
+                                & CGPA.
+                            </p>
+
+                            <div id="grade-mappings-container">
+                                <!-- Populated dynamically from app.js -->
+                            </div>
+                        </div>
+
+                        <!-- Right Configuration Box: App Display Controls -->
+                        <div class="config-box">
+                            <h3>Display & Computation Settings</h3>
+                            <p
+                                style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.4;">
+                                Adjust precision and other application behaviors.
+                            </p>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label for="select-decimal-places">Rounding Precision</label>
+                                <div class="select-wrapper">
+                                    <select id="select-decimal-places" class="custom-select">
+                                        <option value="2" selected>2 Decimal Places (e.g. 8.75)</option>
+                                        <option value="3">3 Decimal Places (e.g. 8.752)</option>
+                                        <option value="4">4 Decimal Places (e.g. 8.7521)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="input-custom-regulations">Autonomous Regulations Code</label>
+                                <input type="text" id="input-custom-regulations" class="table-input"
+                                    value="Regulations 2022" style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <p>© 2026 M. Kumarasamy College of Engineering. All rights reserved. Developed for students academic
+                planning.</p>
+        </footer>
+    </div>
+
+    <!-- TOAST POPUPS NOTIFICATION WRAPPER -->
+    <div class="toast-container" id="toast-wrapper"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
