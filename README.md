@@ -2,67 +2,35 @@
 
 An advanced, premium CGPA & SGPA calculator specifically designed for the students of **M. Kumarasamy College of Engineering (MKCE)**. Track grades, analyze academic performance, and export transcripts.
 
+Live Demo: [cgpa-calculator-three-ashen.vercel.app](https://cgpa-calculator-three-ashen.vercel.app/)
+
 ## 🚀 Features
 - **Semester SGPA Calculator:** Interactive sheet populated with regulation-specific courses.
 - **Cumulative CGPA Dashboard:** Save semesters to track cumulative points and visualize academic performance with dynamic SVG charts.
 - **Grade Sheet OCR Scanner:** Upload or drag-and-drop a screenshot of your grade sheet to automatically extract the department, semester, courses, grades, and results.
-- **Dual OCR Engines:** Choose between **PaddleOCR (Accurate)** for offline local precision and **OCR.space (Fast API)** for rapid cloud scanning.
+- **Dynamic OCR Engines:** Choose between **PaddleOCR (Accurate)** for offline local precision and **OCR.space (Fast API)** for rapid cloud scanning.
 
 ---
 
-## 📸 Grade Sheet OCR Scanning Backend Setup
+## 📸 How to Use the Grade Sheet OCR Scanner
 
-The OCR feature utilizes a python backend (`server.py`) to parse grade sheets, identify course rows, group course titles, and link codes/titles to active curriculum presets to automatically assign credit values.
+**The grade sheet courses, semesters, and grades are extracted and parsed within just 3 seconds!**
 
-### ⚙️ Prerequisites
-Ensure you have **Python 3.8+** installed.
-
-### 1. Install Dependencies
-Run the following command to install the required libraries:
-```bash
-pip install paddlepaddle paddleocr flask flask-cors opencv-python-headless requests
-```
-
-### 2. Configure Your OCR.space API Key (Optional but Recommended for Fast Scanning)
-For fast scanning using the OCR.space API, you should configure your API key as an environment variable to keep it secure:
-
-#### Local Setup:
-* **Windows (PowerShell)**:
-  ```powershell
-  $env:OCR_SPACE_KEY="your_free_api_key"
-  python server.py
-  ```
-* **Windows (Command Prompt)**:
-  ```cmd
-  set OCR_SPACE_KEY=your_free_api_key
-  python server.py
-  ```
-* **Linux / macOS**:
-  ```bash
-  export OCR_SPACE_KEY="your_free_api_key"
-  python server.py
-  ```
-
-#### Production (Hugging Face Spaces):
-1. Go to your Hugging Face Space **Settings** page.
-2. Scroll to the **Variables and secrets** section.
-3. Click **New secret**:
-   * **Name**: `OCR_SPACE_KEY`
-   * **Value**: *Your private API key*
-4. Click **Add**.
+1. Open the [MKCE CGPA Tracker](https://cgpa-calculator-three-ashen.vercel.app/) in your browser.
+2. Click the **Scan Grade Sheet** button in the header.
+3. Choose your preferred engine in the modal:
+   * **OCR.space (Fast API)** for ultra-fast scans in seconds.
+   * **PaddleOCR (Accurate)** for precise row alignment.
+4. Drag and drop or select your grade sheet screenshot.
+5. Review the extracted rows, verify the grade mappings, and click **Import Selected Courses** to instantly populate the active sheet!
 
 ---
 
-### 3. Start the OCR Server Locally
-Run the Flask server locally on your machine:
-```bash
-python server.py
-```
-The server will start at `http://127.0.0.1:5000`. Keep this window open while scanning documents.
+## 🎨 Aesthetics & Themes
 
-### 4. Scan & Import
-1. Open `index.html` in your web browser.
-2. Click **Scan Grade Sheet** on the Course Sheet header.
-3. Choose your preferred **OCR Engine** (PaddleOCR or OCR.space).
-4. Drag & drop or select your grade sheet screenshot.
-5. Review the extracted courses, switch selectors if a mismatch is detected, and click **Import Selected Courses** to auto-fill your tracker!
+The application features a modern, premium user interface designed with:
+- **Vibrant colorful themes** utilizing HSL variables, smooth gradients, and glassmorphic layouts.
+- Dynamic micro-animations, bouncers, and neon glow effects (such as the animated title logo).
+- Full responsiveness on all screen sizes (mobiles, tablets, laptops).
+
+**You can easily toggle between Dark & Light themes and customize grading point ranges inside the Settings tab to change the UI styling dynamically.**
