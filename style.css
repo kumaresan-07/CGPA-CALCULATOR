@@ -979,6 +979,17 @@ body::after { background: var(--glow-2); }
     border-left: 4px solid var(--accent-primary);
 }
 
+.toast.toast-celebrate {
+    border-left-color: #f59e0b;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(56, 189, 248, 0.12)), var(--panel-bg);
+    animation: slideIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), thankPulse 1.6s ease-in-out 2;
+}
+
+@keyframes thankPulse {
+    0%, 100% { transform: translateX(0) scale(1); }
+    50% { transform: translateX(0) scale(1.02); }
+}
+
 .toast-close {
     margin-left: auto;
     background: transparent;

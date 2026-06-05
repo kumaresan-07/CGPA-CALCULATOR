@@ -549,12 +549,12 @@ function saveLocalStorage() {
 }
 
 // TOAST NOTIFICATIONS HELPER
-function showToast(message, type = "success") {
+function showToast(message, type = "success", extraClass = "") {
     const wrapper = document.getElementById("toast-wrapper");
     if (!wrapper) return;
     
     const toast = document.createElement("div");
-    toast.className = `toast toast-${type}`;
+    toast.className = `toast toast-${type}${extraClass ? ` ${extraClass}` : ""}`;
     
     let icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
     if (type === "danger") {
@@ -584,6 +584,26 @@ function showToast(message, type = "success") {
             setTimeout(() => toast.remove(), 250);
         }
     }, 4500);
+}
+
+function showNewContributorThanks() {
+    const contributorThanksKey = "mkce_cgpa_tracker_contributor_thanks_shown";
+    const alreadyShown = localStorage.getItem(contributorThanksKey) === "true";
+    if (alreadyShown) return;
+
+    localStorage.setItem(contributorThanksKey, "true");
+
+    const messages = [
+        "🙏 Thank you for contributing to MKCE CGPA Tracker!",
+        "✨ Your support makes this tool better for every student.",
+        "🚀 Welcome, new contributor — keep building awesome things!"
+    ];
+
+    messages.forEach((message, index) => {
+        setTimeout(() => {
+            showToast(message, "info", "toast-celebrate");
+        }, index * 1300);
+    });
 }
 
 // COMPUTE SEMESTER SGPA
@@ -1289,6 +1309,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSettingsTab();
     
     setupOCRScanner();
+    showNewContributorThanks();
 
     // Responsive chart draw on resize
     window.addEventListener("resize", () => {
