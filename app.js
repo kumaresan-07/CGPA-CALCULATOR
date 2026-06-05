@@ -1648,6 +1648,8 @@ function renderOCRResultsTable() {
                 const titleUpper = course.title.toUpperCase();
                 if (titleUpper.includes("LABORATORY") || titleUpper.includes("PRACTICAL") || titleUpper.includes("WORKSHOP") || titleUpper.includes("LAB")) {
                     matchedCredits = 1.0;
+                } else if (titleUpper.includes("PROJECT PHASE II")) {
+                    matchedCredits = 8.0;
                 } else if (titleUpper.includes("PROJECT")) {
                     matchedCredits = 2.0;
                 }

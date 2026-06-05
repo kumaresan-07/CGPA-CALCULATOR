@@ -204,7 +204,25 @@ def parse_ocr_results(result):
                 if detected_dept:
                     break
                     
-    # 2. Extract Course Rows
+    # 2. Detect Semester from header text
+    # Let's search for "SEMESTER" followed by a number or Roman numeral
+    header_detected_sem = None
+    roman_to_int = {
+        "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8,
+        "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8
+    }
+    for el in elements:
+        txt = el["text"].upper()
+        if "SEMESTER" in txt:
+            words = re.findall(r'\b[A-Z0-9]+\b', txt)
+            for w in words:
+                if w in roman_to_int:
+                    header_detected_sem = roman_to_int[w]
+                    break
+            if header_detected_sem:
+                break
+
+    # 3. Extract Course Rows
     # A Course code usually matches regex: \b[A-Z]{3,5}\d{3,4}\b
     course_code_regex = re.compile(r'\b[A-Z]{3,5}\d{3,4}\b')
     
@@ -354,16 +372,16 @@ def parse_ocr_results(result):
         
     # Determine the overall semester
     semesters = [c["semester"] for c in courses if c["semester"] is not None]
-    detected_sem = max(set(semesters), key=semesters.count) if semesters else None
+    overall_sem = max(set(semesters), key=semesters.count) if semesters else header_detected_sem
     
-    # If some courses have missing semesters, fill them with the detected_sem
+    # If some courses have missing semesters, fill them with the overall_sem
     for c in courses:
         if c["semester"] is None:
-            c["semester"] = detected_sem
+            c["semester"] = overall_sem
             
     return {
         "department": detected_dept,
-        "semester": detected_sem,
+        "semester": overall_sem,
         "courses": courses
     }
 
