@@ -207,7 +207,7 @@ const CURRICULUM_PRESETS = {
     // AIML Curriculum Presets
     "ai-ml": {
         8: [
-            { code: "", title: "Project Phase II", credits: 16 }
+            { code: "", title: "Project Phase II / Project Work", credits: 16 }
         ]
     },
     // Civil Engineering Curriculum Presets
@@ -1401,8 +1401,17 @@ function setupOCRScanner() {
             return;
         }
         
+        // Automatically update academic filters to match the scanned document on import
+        if (ocrExtractedData.department) {
+            appState.selectedDept = ocrExtractedData.department;
+        }
+        if (ocrExtractedData.semester) {
+            appState.selectedSem = ocrExtractedData.semester.toString();
+        }
+        
         if (appState.courses.length > 0) {
-            if (!confirm("This will replace your current course sheet with the scanned courses (merged with target curriculum preset). Continue?")) {
+            const targetDeptName = DEPT_INFO[appState.selectedDept]?.name || appState.selectedDept;
+            if (!confirm(`This will import the scanned courses to ${targetDeptName} - Semester ${appState.selectedSem}. Continue?`)) {
                 return;
             }
         }
@@ -1440,6 +1449,11 @@ function setupOCRScanner() {
                     const cleanPTitle = p.title.toLowerCase().replace(/[^a-z0-9]/g, "");
                     const cleanScTitle = sc.title.toLowerCase().replace(/[^a-z0-9]/g, "");
                     if (cleanPTitle === cleanScTitle) return true;
+                    
+                    if (p.title.includes("/")) {
+                        const titles = p.title.split("/").map(t => t.trim().toLowerCase().replace(/[^a-z0-9]/g, ""));
+                        if (titles.includes(cleanScTitle)) return true;
+                    }
                     
                     return false;
                 });
@@ -1650,6 +1664,11 @@ function renderOCRResultsTable() {
                 const cleanCourseTitle = course.title.toLowerCase().replace(/[^a-z0-9]/g, "");
                 if (cleanPresetTitle === cleanCourseTitle) return true;
                 
+                if (p.title.includes("/")) {
+                    const titles = p.title.split("/").map(t => t.trim().toLowerCase().replace(/[^a-z0-9]/g, ""));
+                    if (titles.includes(cleanCourseTitle)) return true;
+                }
+                
                 return false;
             });
             
@@ -1660,7 +1679,7 @@ function renderOCRResultsTable() {
                 const titleUpper = course.title.toUpperCase();
                 if (titleUpper.includes("LABORATORY") || titleUpper.includes("PRACTICAL") || titleUpper.includes("WORKSHOP") || titleUpper.includes("LAB")) {
                     matchedCredits = 1.0;
-                } else if (titleUpper.includes("PROJECT PHASE II")) {
+                } else if (titleUpper.includes("PROJECT PHASE II") || titleUpper.includes("PROJECT WORK")) {
                     matchedCredits = (targetDept === "ai-ml") ? 16.0 : 8.0;
                 } else if (titleUpper.includes("PROJECT")) {
                     matchedCredits = 2.0;
