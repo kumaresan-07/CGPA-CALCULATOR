@@ -1418,20 +1418,23 @@ function setupOCRScanner() {
             presets.forEach(p => {
                 const matchIndex = selectedCourses.findIndex((sc, scIdx) => {
                     if (mergedScannedIndices.has(scIdx)) return false;
-                    if (p.code.toUpperCase() === sc.code.toUpperCase()) return true;
+                    const cleanScCode = sc.code.toUpperCase().replace(/^\d{2}/, "");
+                    const cleanPCode = p.code.toUpperCase().replace(/^\d{2}/, "");
+                    
+                    if (cleanPCode === cleanScCode) return true;
                     
                     if (p.code.includes("/")) {
-                        const codes = p.code.split("/").map(c => c.trim().toUpperCase());
-                        if (codes.includes(sc.code.toUpperCase())) return true;
+                        const codes = p.code.split("/").map(c => c.trim().toUpperCase().replace(/^\d{2}/, ""));
+                        if (codes.includes(cleanScCode)) return true;
                     }
                     
                     if (p.code.includes("XX")) {
-                        const prefix = p.code.split("XX")[0].toUpperCase();
-                        if (sc.code.toUpperCase().startsWith(prefix)) return true;
+                        const prefix = p.code.split("XX")[0].toUpperCase().replace(/^\d{2}/, "");
+                        if (cleanScCode.startsWith(prefix)) return true;
                     }
                     if (p.code.includes("XXXX")) {
-                        const prefix = p.code.split("XXXX")[0].toUpperCase();
-                        if (sc.code.toUpperCase().startsWith(prefix)) return true;
+                        const prefix = p.code.split("XXXX")[0].toUpperCase().replace(/^\d{2}/, "");
+                        if (cleanScCode.startsWith(prefix)) return true;
                     }
                     
                     const cleanPTitle = p.title.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -1624,20 +1627,23 @@ function renderOCRResultsTable() {
         
         if (presets && presets.length > 0) {
             const match = presets.find(p => {
-                if (p.code.toUpperCase() === course.code.toUpperCase()) return true;
+                const cleanScCode = course.code.toUpperCase().replace(/^\d{2}/, "");
+                const cleanPCode = p.code.toUpperCase().replace(/^\d{2}/, "");
+                
+                if (cleanPCode === cleanScCode) return true;
                 
                 if (p.code.includes("/")) {
-                    const codes = p.code.split("/").map(c => c.trim().toUpperCase());
-                    if (codes.includes(course.code.toUpperCase())) return true;
+                    const codes = p.code.split("/").map(c => c.trim().toUpperCase().replace(/^\d{2}/, ""));
+                    if (codes.includes(cleanScCode)) return true;
                 }
                 
                 if (p.code.includes("XX")) {
-                    const prefix = p.code.split("XX")[0].toUpperCase();
-                    if (course.code.toUpperCase().startsWith(prefix)) return true;
+                    const prefix = p.code.split("XX")[0].toUpperCase().replace(/^\d{2}/, "");
+                    if (cleanScCode.startsWith(prefix)) return true;
                 }
                 if (p.code.includes("XXXX")) {
-                    const prefix = p.code.split("XXXX")[0].toUpperCase();
-                    if (course.code.toUpperCase().startsWith(prefix)) return true;
+                    const prefix = p.code.split("XXXX")[0].toUpperCase().replace(/^\d{2}/, "");
+                    if (cleanScCode.startsWith(prefix)) return true;
                 }
                 
                 const cleanPresetTitle = p.title.toLowerCase().replace(/[^a-z0-9]/g, "");

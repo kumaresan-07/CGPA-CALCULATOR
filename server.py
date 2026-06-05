@@ -223,8 +223,8 @@ def parse_ocr_results(result):
                 break
 
     # 3. Extract Course Rows
-    # A Course code usually matches regex: \b[A-Z]{3,5}\d{3,4}\b
-    course_code_regex = re.compile(r'\b[A-Z]{3,5}\d{3,4}\b')
+    # A Course code matches: standard (e.g. CSB1431) or regulation (e.g. 18AMP401L)
+    course_code_regex = re.compile(r'\b(?:\d{2})?[A-Z]{2,5}\d{3,4}[A-Z]?\b')
     
     course_nodes = []
     for el in elements:
@@ -356,7 +356,7 @@ def parse_ocr_results(result):
         # If title is empty, check if there is some text in the code node itself after the code (e.g. "FLC1184 - JAPANESE")
         if not title:
             code_text = code_node["text"]
-            code_match = re.search(r'\b[A-Z]{3,5}\d{3,4}\b', code_text)
+            code_match = re.search(r'\b(?:\d{2})?[A-Z]{2,5}\d{3,4}[A-Z]?\b', code_text)
             if code_match:
                 remainder = code_text[code_match.end():].strip("- ").strip()
                 if remainder:
