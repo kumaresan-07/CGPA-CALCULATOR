@@ -1,0 +1,5 @@
+paddlepaddle
+paddleocr
+flask
+flask-cors
+opencv-python-headless
