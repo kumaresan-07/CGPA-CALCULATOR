@@ -19,7 +19,7 @@ COPY runtime.txt /app/
 
 # Install python dependencies directly to save build steps
 RUN pip install --no-cache-dir \
-    paddlepaddle==2.6.1 \
+    "paddlepaddle>=2.6.0,<3.0.0" \
     paddleocr>=2.7.0 \
     flask \
     flask-cors \
