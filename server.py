@@ -172,14 +172,28 @@ def parse_ocr_results(result):
     # Let's find any text matching department keywords
     for el in elements:
         txt = el["text"].upper()
-        if "DEPARTMENT" in txt or "BRANCH" in txt or "PROGRAMME" in txt:
-            # Look at this element's text (e.g. "Department : B.TECH. - Information Technology")
-            dept_part = txt.split(":")[-1].strip() if ":" in txt else txt
-            # Check if we can find a matching dept name
+        if "DEPARTMENT" in txt or "BRANCH" in txt or "PROGRAMME" in txt or "ARTIFICIAL" in txt or "COMPUTER" in txt or "INFORMATION" in txt:
+            # Check direct match
             for dept in DEPARTMENTS:
-                if dept["name"].upper() in txt or dept["name"].upper() in dept_part:
+                if dept["name"].upper() in txt:
                     detected_dept = dept["key"]
                     break
+            
+            # Fuzzy fallback matching for common OCR spelling errors (e.g. "Leaming" / "Leam")
+            if not detected_dept:
+                if "MACHINE LE" in txt or "AI-ML" in txt or "AI & ML" in txt:
+                    detected_dept = "ai-ml"
+                elif "DATA SC" in txt or "AI-DS" in txt or "AI & DS" in txt:
+                    detected_dept = "ai-ds"
+                elif "COMPUTER S" in txt or "CSE" in txt:
+                    detected_dept = "cse"
+                elif "INFORMATION T" in txt or "IT" in txt:
+                    detected_dept = "it"
+                elif "ELECTRICAL" in txt or "EEE" in txt:
+                    detected_dept = "eee"
+                elif "ELECTRONICS" in txt or "ECE" in txt:
+                    detected_dept = "ece"
+            
             if detected_dept:
                 break
                 
@@ -201,6 +215,18 @@ def parse_ocr_results(result):
                     if dept["name"].upper() in cand_text or (len(cand_text) > 4 and cand_text in dept["name"].upper()):
                         detected_dept = dept["key"]
                         break
+                
+                # Fuzzy fallback matching on the candidates
+                if not detected_dept:
+                    if "MACHINE LE" in cand_text or "AI-ML" in cand_text or "AI & ML" in cand_text:
+                        detected_dept = "ai-ml"
+                    elif "DATA SC" in cand_text or "AI-DS" in cand_text or "AI & DS" in cand_text:
+                        detected_dept = "ai-ds"
+                    elif "COMPUTER S" in cand_text or "CSE" in cand_text:
+                        detected_dept = "cse"
+                    elif "INFORMATION T" in cand_text or "IT" in cand_text:
+                        detected_dept = "it"
+                
                 if detected_dept:
                     break
                     
@@ -326,41 +352,42 @@ def parse_ocr_results(result):
             result = "Pass" if grade != "U" else "Fail"
             
         # Reconstruct course title
-        # Course title consists of text blocks that:
-        # - Are between current row y and next row y
-        # - Are to the right of S.No column (usually x > x_code - 50)
-        # - Are to the left of the Semester column (x < x_sem_limit - 15)
+        # Start with the remainder of the code node text itself
+        code_text = code_node["text"]
+        code_match = re.search(r'\b(?:\d{2})?[A-Z]{2,5}\d{3,4}[A-Z]?\b', code_text)
+        initial_title = ""
+        if code_match:
+            initial_title = code_text[code_match.end():].strip("- ").strip()
+            initial_title = re.sub(r'^[_\-\s]+', '', initial_title).strip()
+            
+        # Gather other title blocks strictly on the same row vertically
         title_blocks = []
+        y_tolerance_row = max(h_code * 0.8, 12.0)
         for el in elements:
-            # Check vertical alignment
-            if el["y"] >= y_code - y_tolerance and el["y"] < next_y_code - y_tolerance:
-                # Check horizontal alignment
+            if el is code_node:
+                continue
+            if abs(el["y"] - y_code) <= y_tolerance_row:
                 if el["x"] > x_code - 15 and el["x"] < x_sem_limit - 15:
-                    # Exclude the code node text itself
-                    if el is not code_node and not code_node["text"] in el["text"]:
-                        title_blocks.append(el)
-                        
-        # Sort title blocks: first by y-coordinate (top-to-bottom), then by x-coordinate (left-to-right)
-        title_blocks.sort(key=lambda tb: (tb["y"], tb["x"]))
+                    title_blocks.append(el)
+                    
+        # Sort title blocks left-to-right
+        title_blocks.sort(key=lambda tb: tb["x"])
         
-        # Clean and join title blocks
+        # Clean and join title blocks, extracting any code remainders
         title_parts = []
         for tb in title_blocks:
-            cleaned_tb = tb["text"]
-            # Remove leading symbols like "-", "_", " "
-            cleaned_tb = re.sub(r'^[_\-\s]+', '', cleaned_tb).strip()
-            if cleaned_tb:
-                title_parts.append(cleaned_tb)
+            tb_txt = tb["text"].strip()
+            tb_code_match = re.search(r'\b(?:\d{2})?[A-Z]{2,5}\d{3,4}[A-Z]?\b', tb_txt)
+            if tb_code_match:
+                remainder = tb_txt[tb_code_match.end():].strip("- ").strip()
+                if remainder:
+                    title_parts.append(remainder)
+            else:
+                title_parts.append(tb_txt)
                 
         title = " ".join(title_parts)
-        # If title is empty, check if there is some text in the code node itself after the code (e.g. "FLC1184 - JAPANESE")
         if not title:
-            code_text = code_node["text"]
-            code_match = re.search(r'\b(?:\d{2})?[A-Z]{2,5}\d{3,4}[A-Z]?\b', code_text)
-            if code_match:
-                remainder = code_text[code_match.end():].strip("- ").strip()
-                if remainder:
-                    title = remainder
+            title = initial_title
                     
         courses.append({
             "code": code_node["clean_code"],
