@@ -1,6 +1,10 @@
 import os
 os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
 os.environ["FLAGS_use_mkldnn"] = "0"
+# Optimize threads and memory overhead for low-memory container instances (like Render 512MB)
+os.environ["CPU_NUM"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
 import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -364,5 +368,13 @@ def parse_ocr_results(result):
     }
 
 if __name__ == '__main__':
-    # Run server locally on port 5000
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    # Dynamically bind to PORT environment variable injected by Render, defaulting to 5000 locally
+    port = int(os.environ.get('PORT', 5000))
+    is_prod = 'PORT' in os.environ
+    
+    # In production, run on 0.0.0.0 and disable debug mode.
+    # Disabling debug mode is CRITICAL as it prevents Flask from spawning a watcher process,
+    # which cuts memory usage in half (~350MB instead of ~700MB) to prevent Render Out of Memory crashes.
+    app.run(host='0.0.0.0' if is_prod else '127.0.0.1', 
+            port=port, 
+            debug=not is_prod)
