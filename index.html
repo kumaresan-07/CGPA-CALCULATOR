@@ -214,15 +214,24 @@
                             <p class="card-subtitle" id="calc-subtitle">Manage courses, credit values, and grade results
                                 for CSE - Sem 1</p>
                         </div>
-                        <button class="btn btn-secondary" id="btn-load-preset">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="7 10 12 15 17 10" />
-                                <line x1="12" y1="15" x2="12" y2="3" />
-                            </svg>
-                            Reload Preset
-                        </button>
+                        <div class="header-btn-group" style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" id="btn-ocr-scan" title="Upload grade sheet image to auto-fill courses">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                    <circle cx="12" cy="13" r="4"/>
+                                </svg>
+                                Scan Grade Sheet
+                            </button>
+                            <button class="btn btn-secondary" id="btn-load-preset">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Reload Preset
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Courses Table -->
@@ -499,6 +508,96 @@
 
     <!-- TOAST POPUPS NOTIFICATION WRAPPER -->
     <div class="toast-container" id="toast-wrapper"></div>
+
+    <!-- OCR SCAN MODAL -->
+    <div class="modal-overlay" id="ocr-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    Scan Grade Sheet with PaddleOCR
+                </h3>
+                <button class="modal-close-btn" id="btn-close-ocr-modal">&times;</button>
+            </div>
+            
+            <!-- Step 1: Upload Image -->
+            <div class="modal-body" id="ocr-step-upload">
+                <div class="drag-drop-zone" id="ocr-drag-drop">
+                    <div class="upload-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                    </div>
+                    <p class="drag-drop-text">Drag & drop your grade sheet image here, or <span>browse files</span></p>
+                    <p class="file-size-limit">Supports PNG, JPG, JPEG (up to 10MB)</p>
+                    <input type="file" id="ocr-file-input" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Step 2: Processing -->
+            <div class="modal-body" id="ocr-step-processing" style="display: none;">
+                <div class="processing-container">
+                    <div class="loading-spinner"></div>
+                    <h4 class="processing-title">Processing Image...</h4>
+                    <p class="processing-subtitle" id="ocr-status-message">Uploading image to PaddleOCR backend...</p>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="ocr-progress-fill" style="width: 15%;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 3: OCR Review Results -->
+            <div class="modal-body" id="ocr-step-results" style="display: none;">
+                <!-- Alerts Container for mismatching dept/sem -->
+                <div id="ocr-alerts-container"></div>
+                
+                <div class="ocr-results-summary">
+                    <div class="summary-card">
+                        <span class="summary-lbl">Detected Department</span>
+                        <span class="summary-val" id="ocr-det-dept">-</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-lbl">Detected Semester</span>
+                        <span class="summary-val" id="ocr-det-sem">-</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-lbl">Extracted Courses</span>
+                        <span class="summary-val" id="ocr-det-count">0</span>
+                    </div>
+                </div>
+                
+                <h4 style="margin-bottom: 12px; font-size: 1rem; color: var(--text-primary); font-family: var(--font-heading);">Extracted Subject Rows</h4>
+                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                    <table class="course-table" id="ocr-results-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%; text-align: center;"><input type="checkbox" id="ocr-select-all" checked></th>
+                                <th style="width: 15%">Code</th>
+                                <th style="width: 45%">Title</th>
+                                <th style="width: 10%">Sem</th>
+                                <th style="width: 10%">Grade</th>
+                                <th style="width: 15%">Credits</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ocr-results-tbody">
+                            <!-- Populated after OCR -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-cancel-ocr">Cancel</button>
+                <button class="btn btn-primary" id="btn-import-ocr" style="display: none;" disabled>Import Selected Courses</button>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>

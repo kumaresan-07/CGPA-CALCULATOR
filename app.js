@@ -1282,6 +1282,8 @@ document.addEventListener("DOMContentLoaded", () => {
     calculateCGPA();
     renderSettingsTab();
     
+    setupOCRScanner();
+
     // Responsive chart draw on resize
     window.addEventListener("resize", () => {
         if (document.getElementById("tab-history").classList.contains("active")) {
@@ -1289,3 +1291,464 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+// ==========================================
+// PADDLEOCR FRONTEND MODULE
+// ==========================================
+let ocrExtractedData = null; // Stores parsed results
+
+function setupOCRScanner() {
+    const modal = document.getElementById("ocr-modal");
+    const btnOpen = document.getElementById("btn-ocr-scan");
+    const btnClose = document.getElementById("btn-close-ocr-modal");
+    const btnCancel = document.getElementById("btn-cancel-ocr");
+    const btnImport = document.getElementById("btn-import-ocr");
+    
+    const dragDropZone = document.getElementById("ocr-drag-drop");
+    const fileInput = document.getElementById("ocr-file-input");
+    
+    // Open Modal
+    btnOpen.addEventListener("click", () => {
+        resetOCRModal();
+        modal.classList.add("active");
+    });
+    
+    // Close Modal
+    [btnClose, btnCancel].forEach(btn => {
+        btn.addEventListener("click", () => {
+            modal.classList.remove("active");
+        });
+    });
+    
+    // Close on overlay click
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.remove("active");
+        }
+    });
+    
+    // Drag & Drop
+    dragDropZone.addEventListener("click", () => fileInput.click());
+    
+    dragDropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dragDropZone.classList.add("dragover");
+    });
+    
+    dragDropZone.addEventListener("dragleave", () => {
+        dragDropZone.classList.remove("dragover");
+    });
+    
+    dragDropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dragDropZone.classList.remove("dragover");
+        if (e.dataTransfer.files.length > 0) {
+            handleOCRFile(e.dataTransfer.files[0]);
+        }
+    });
+    
+    fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+            handleOCRFile(e.target.files[0]);
+        }
+    });
+    
+    // Select All Checkbox
+    document.getElementById("ocr-select-all").addEventListener("change", (e) => {
+        const checked = e.target.checked;
+        document.querySelectorAll(".ocr-row-checkbox").forEach(cb => {
+            cb.checked = checked;
+        });
+        toggleImportButtonState();
+    });
+    
+    // Import Click
+    btnImport.addEventListener("click", () => {
+        if (!ocrExtractedData || !ocrExtractedData.courses) return;
+        
+        const selectedCourses = [];
+        const checkboxes = document.querySelectorAll(".ocr-row-checkbox:checked");
+        
+        checkboxes.forEach(cb => {
+            const index = parseInt(cb.dataset.index);
+            const rawCourse = ocrExtractedData.courses[index];
+            
+            const row = cb.closest("tr");
+            const code = row.querySelector(".ocr-input-code").value.trim().toUpperCase();
+            const title = row.querySelector(".ocr-input-title").value.trim();
+            const credits = parseFloat(row.querySelector(".ocr-input-credits").value) || 3;
+            const grade = row.querySelector(".ocr-select-grade").value;
+            
+            selectedCourses.push({
+                code: code || rawCourse.code,
+                title: title || rawCourse.title,
+                credits: credits,
+                grade: grade
+            });
+        });
+        
+        if (selectedCourses.length === 0) {
+            showToast("No courses selected for import!", "danger");
+            return;
+        }
+        
+        if (appState.courses.length > 0) {
+            if (!confirm("This will replace your current course sheet with the scanned courses (merged with target curriculum preset). Continue?")) {
+                return;
+            }
+        }
+        
+        // Merge scanned courses with target curriculum presets to avoid excluding missing subjects
+        const targetDept = appState.selectedDept;
+        const targetSem = appState.selectedSem;
+        const presets = generatePreset(targetDept, targetSem);
+        const finalCourses = [];
+        const mergedScannedIndices = new Set();
+        
+        if (presets && presets.length > 0) {
+            presets.forEach(p => {
+                const matchIndex = selectedCourses.findIndex((sc, scIdx) => {
+                    if (mergedScannedIndices.has(scIdx)) return false;
+                    if (p.code.toUpperCase() === sc.code.toUpperCase()) return true;
+                    
+                    if (p.code.includes("/")) {
+                        const codes = p.code.split("/").map(c => c.trim().toUpperCase());
+                        if (codes.includes(sc.code.toUpperCase())) return true;
+                    }
+                    
+                    if (p.code.includes("XX")) {
+                        const prefix = p.code.split("XX")[0].toUpperCase();
+                        if (sc.code.toUpperCase().startsWith(prefix)) return true;
+                    }
+                    if (p.code.includes("XXXX")) {
+                        const prefix = p.code.split("XXXX")[0].toUpperCase();
+                        if (sc.code.toUpperCase().startsWith(prefix)) return true;
+                    }
+                    
+                    const cleanPTitle = p.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+                    const cleanScTitle = sc.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+                    if (cleanPTitle === cleanScTitle) return true;
+                    
+                    return false;
+                });
+                
+                if (matchIndex >= 0) {
+                    const sc = selectedCourses[matchIndex];
+                    finalCourses.push({
+                        code: sc.code,
+                        title: sc.title,
+                        credits: sc.credits,
+                        grade: sc.grade
+                    });
+                    mergedScannedIndices.add(matchIndex);
+                } else {
+                    finalCourses.push({
+                        code: p.code,
+                        title: p.title,
+                        credits: p.credits,
+                        grade: "U" // Default to ungraded
+                    });
+                }
+            });
+            
+            // Add custom scanned courses that didn't match presets
+            selectedCourses.forEach((sc, scIdx) => {
+                if (!mergedScannedIndices.has(scIdx)) {
+                    finalCourses.push(sc);
+                }
+            });
+        } else {
+            finalCourses.push(...selectedCourses);
+        }
+        
+        // Update state and selectors
+        appState.courses = finalCourses;
+        
+        document.getElementById("select-department").value = appState.selectedDept;
+        document.getElementById("select-semester").value = appState.selectedSem;
+        
+        const targetYear = Math.ceil(parseInt(appState.selectedSem) / 2);
+        document.getElementById("select-year").value = targetYear.toString();
+        appState.selectedYear = targetYear.toString();
+        
+        // Render & Update
+        updateCurriculumHeaders();
+        renderCourseTable();
+        calculateSGPA();
+        saveLocalStorage();
+        
+        showToast(`Successfully imported ${selectedCourses.length} courses (merged with preset)!`);
+        modal.classList.remove("active");
+    });
+}
+
+function resetOCRModal() {
+    ocrExtractedData = null;
+    document.getElementById("ocr-file-input").value = "";
+    document.getElementById("ocr-step-upload").style.display = "block";
+    document.getElementById("ocr-step-processing").style.display = "none";
+    document.getElementById("ocr-step-results").style.display = "none";
+    document.getElementById("btn-import-ocr").style.display = "none";
+    document.getElementById("btn-import-ocr").disabled = true;
+    document.getElementById("ocr-alerts-container").innerHTML = "";
+}
+
+function handleOCRFile(file) {
+    if (!file.type.match("image.*")) {
+        showToast("Please upload a valid image file (PNG, JPG, JPEG).", "danger");
+        return;
+    }
+    
+    document.getElementById("ocr-step-upload").style.display = "none";
+    document.getElementById("ocr-step-processing").style.display = "block";
+    
+    const statusMsg = document.getElementById("ocr-status-message");
+    const progressFill = document.getElementById("ocr-progress-fill");
+    
+    statusMsg.innerText = "Connecting to local PaddleOCR server...";
+    progressFill.style.width = "20%";
+    
+    const formData = new FormData();
+    formData.append("image", file);
+    
+    fetch("http://127.0.0.1:5000/ocr", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        progressFill.style.width = "70%";
+        statusMsg.innerText = "Analyzing text positions and structures...";
+        if (!response.ok) {
+            throw new Error(`Server returned status ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        progressFill.style.width = "100%";
+        setTimeout(() => {
+            displayOCRResults(data);
+        }, 300);
+    })
+    .catch(error => {
+        console.error("OCR API error: ", error);
+        resetOCRModal();
+        showToast("OCR processing failed. Make sure the local server is running.", "danger");
+        showOCROfflineInstructions();
+    });
+}
+
+function showOCROfflineInstructions() {
+    const modal = document.getElementById("ocr-modal");
+    modal.classList.add("active");
+    
+    const stepUpload = document.getElementById("ocr-step-upload");
+    stepUpload.style.display = "block";
+    
+    let guide = document.getElementById("ocr-offline-guide");
+    if (!guide) {
+        guide = document.createElement("div");
+        guide.id = "ocr-offline-guide";
+        guide.className = "ocr-alert";
+        guide.style.marginTop = "20px";
+        guide.style.background = "rgba(239, 68, 68, 0.08)";
+        guide.style.borderColor = "rgba(239, 68, 68, 0.2)";
+        guide.innerHTML = `
+            <div class="ocr-alert-icon" style="color: var(--accent-danger)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div class="ocr-alert-content">
+                <h5 style="color: var(--accent-danger)">Local OCR Server Offline</h5>
+                <p>To use OCR scanning, you must run the local Python backend:</p>
+                <code style="display: block; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; margin: 8px 0; color: var(--text-primary); user-select: all;">python server.py</code>
+                <p>If you haven't installed requirements yet, run:</p>
+                <code style="display: block; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; margin: 8px 0; color: var(--text-primary); user-select: all;">pip install paddlepaddle paddleocr flask flask-cors opencv-python-headless</code>
+            </div>
+        `;
+        stepUpload.appendChild(guide);
+    }
+}
+
+function displayOCRResults(data) {
+    ocrExtractedData = data;
+    
+    const guide = document.getElementById("ocr-offline-guide");
+    if (guide) guide.remove();
+    
+    document.getElementById("ocr-step-processing").style.display = "none";
+    document.getElementById("ocr-step-results").style.display = "block";
+    
+    const btnImport = document.getElementById("btn-import-ocr");
+    btnImport.style.display = "inline-flex";
+    btnImport.disabled = false;
+    
+    const detectedDept = data.department;
+    const detectedSem = data.semester ? data.semester.toString() : null;
+    
+    const deptInfo = DEPT_INFO[detectedDept];
+    document.getElementById("ocr-det-dept").innerText = deptInfo ? deptInfo.name : (detectedDept || "Unknown");
+    document.getElementById("ocr-det-sem").innerText = detectedSem ? `Semester ${detectedSem}` : "Unknown";
+    document.getElementById("ocr-det-count").innerText = data.courses ? data.courses.length : 0;
+    
+    renderOCRResultsTable();
+    checkOCRFilterMismatch(detectedDept, detectedSem);
+}
+
+function renderOCRResultsTable() {
+    const tbody = document.getElementById("ocr-results-tbody");
+    tbody.innerHTML = "";
+    
+    if (!ocrExtractedData || !ocrExtractedData.courses || ocrExtractedData.courses.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No courses extracted from image.</td></tr>`;
+        return;
+    }
+    
+    const targetDept = ocrExtractedData.department || appState.selectedDept;
+    const targetSem = ocrExtractedData.semester ? ocrExtractedData.semester.toString() : appState.selectedSem;
+    
+    const presets = generatePreset(targetDept, targetSem);
+    
+    ocrExtractedData.courses.forEach((course, index) => {
+        let matchedCredits = 3; 
+        let isMatched = false;
+        
+        if (presets && presets.length > 0) {
+            const match = presets.find(p => {
+                if (p.code.toUpperCase() === course.code.toUpperCase()) return true;
+                
+                if (p.code.includes("/")) {
+                    const codes = p.code.split("/").map(c => c.trim().toUpperCase());
+                    if (codes.includes(course.code.toUpperCase())) return true;
+                }
+                
+                if (p.code.includes("XX")) {
+                    const prefix = p.code.split("XX")[0].toUpperCase();
+                    if (course.code.toUpperCase().startsWith(prefix)) return true;
+                }
+                if (p.code.includes("XXXX")) {
+                    const prefix = p.code.split("XXXX")[0].toUpperCase();
+                    if (course.code.toUpperCase().startsWith(prefix)) return true;
+                }
+                
+                const cleanPresetTitle = p.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+                const cleanCourseTitle = course.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+                if (cleanPresetTitle === cleanCourseTitle) return true;
+                
+                return false;
+            });
+            
+            if (match) {
+                matchedCredits = match.credits;
+                isMatched = true;
+            } else {
+                const titleUpper = course.title.toUpperCase();
+                if (titleUpper.includes("LABORATORY") || titleUpper.includes("PRACTICAL") || titleUpper.includes("WORKSHOP") || titleUpper.includes("LAB")) {
+                    matchedCredits = 1.0;
+                } else if (titleUpper.includes("PROJECT")) {
+                    matchedCredits = 2.0;
+                }
+            }
+        }
+        
+        let gradeOptions = "";
+        Object.keys(appState.gradeScale).forEach(gradeKey => {
+            const selected = course.grade === gradeKey ? "selected" : "";
+            gradeOptions += `<option value="${gradeKey}" ${selected}>${gradeKey}</option>`;
+        });
+        
+        const tr = document.createElement("tr");
+        if (isMatched) {
+            tr.style.background = "rgba(16, 185, 129, 0.02)";
+        }
+        
+        tr.innerHTML = `
+            <td style="text-align: center; vertical-align: middle;">
+                <input type="checkbox" class="ocr-row-checkbox" data-index="${index}" checked>
+            </td>
+            <td>
+                <input type="text" class="table-input ocr-input-code" value="${course.code}" style="width: 100%; text-transform: uppercase;">
+            </td>
+            <td>
+                <input type="text" class="table-input ocr-input-title" value="${course.title}" style="width: 100%;" title="${course.title}">
+            </td>
+            <td style="text-align: center; vertical-align: middle; color: var(--text-secondary); font-size: 0.85rem;">
+                ${course.semester || targetSem}
+            </td>
+            <td>
+                <div class="select-wrapper">
+                    <select class="custom-select ocr-select-grade" style="padding: 4px 24px 4px 8px; font-size: 0.8rem; border-radius: 6px;">
+                        ${gradeOptions}
+                    </select>
+                </div>
+            </td>
+            <td>
+                <input type="number" step="0.5" class="table-input ocr-input-credits" value="${matchedCredits}" style="width: 60px; text-align: center;" title="${isMatched ? 'Linked automatically from presets' : 'Estimated credits'}">
+                ${isMatched ? '<span style="color: var(--accent-success); font-size: 0.7rem; display: block; text-align: center; margin-top: 2px;">Linked</span>' : ''}
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    });
+    
+    tbody.querySelectorAll(".ocr-row-checkbox").forEach(cb => {
+        cb.addEventListener("change", toggleImportButtonState);
+    });
+    toggleImportButtonState();
+}
+
+function toggleImportButtonState() {
+    const checkedCount = document.querySelectorAll(".ocr-row-checkbox:checked").length;
+    const btnImport = document.getElementById("btn-import-ocr");
+    btnImport.disabled = checkedCount === 0;
+    btnImport.innerText = `Import Selected Courses (${checkedCount})`;
+}
+
+function checkOCRFilterMismatch(detectedDept, detectedSem) {
+    const alertsContainer = document.getElementById("ocr-alerts-container");
+    alertsContainer.innerHTML = "";
+    
+    const deptMismatch = detectedDept && detectedDept !== appState.selectedDept;
+    const semMismatch = detectedSem && detectedSem !== appState.selectedSem;
+    
+    if (deptMismatch || semMismatch) {
+        const activeDeptName = DEPT_INFO[appState.selectedDept]?.name || appState.selectedDept;
+        const detDeptName = DEPT_INFO[detectedDept]?.name || detectedDept;
+        
+        let msg = "The scanned grade sheet details do not match your current selection filter.";
+        if (deptMismatch && semMismatch) {
+            msg = `Detected grade sheet belongs to <strong>${detDeptName} (Semester ${detectedSem})</strong>, but your active sheet is set to <strong>${activeDeptName} (Semester ${appState.selectedSem})</strong>.`;
+        } else if (deptMismatch) {
+            msg = `Detected department is <strong>${detDeptName}</strong>, but your active sheet is set to <strong>${activeDeptName}</strong>.`;
+        } else if (semMismatch) {
+            msg = `Detected semester is <strong>Semester ${detectedSem}</strong>, but your active sheet is set to <strong>Semester ${appState.selectedSem}</strong>.`;
+        }
+        
+        const alertDiv = document.createElement("div");
+        alertDiv.className = "ocr-alert";
+        alertDiv.innerHTML = `
+            <div class="ocr-alert-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <div class="ocr-alert-content">
+                <h5>Academic Filter Mismatch</h5>
+                <p>${msg}</p>
+                <button class="ocr-alert-action-btn" id="ocr-alert-switch-btn">Switch Filters to Match</button>
+            </div>
+        `;
+        
+        alertsContainer.appendChild(alertDiv);
+        
+        document.getElementById("ocr-alert-switch-btn").addEventListener("click", () => {
+            if (detectedDept) appState.selectedDept = detectedDept;
+            if (detectedSem) appState.selectedSem = detectedSem;
+            
+            renderOCRResultsTable();
+            showToast("Switched selectors to match scanned document.");
+            alertsContainer.innerHTML = "";
+        });
+    }
+}
