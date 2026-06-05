@@ -204,6 +204,12 @@ const CURRICULUM_PRESETS = {
             { code: "GEA1301", title: "Career Skill Development IV", credits: 1 }
         ]
     },
+    // AIML Curriculum Presets
+    "ai-ml": {
+        8: [
+            { code: "", title: "Project Phase II", credits: 16 }
+        ]
+    },
     // Civil Engineering Curriculum Presets
     civil: {
         1: [
@@ -1649,7 +1655,7 @@ function renderOCRResultsTable() {
                 if (titleUpper.includes("LABORATORY") || titleUpper.includes("PRACTICAL") || titleUpper.includes("WORKSHOP") || titleUpper.includes("LAB")) {
                     matchedCredits = 1.0;
                 } else if (titleUpper.includes("PROJECT PHASE II")) {
-                    matchedCredits = 8.0;
+                    matchedCredits = (targetDept === "ai-ml") ? 16.0 : 8.0;
                 } else if (titleUpper.includes("PROJECT")) {
                     matchedCredits = 2.0;
                 }
