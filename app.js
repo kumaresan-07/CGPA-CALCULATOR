@@ -1296,7 +1296,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // PADDLEOCR FRONTEND MODULE
 // ==========================================
 // Change this URL if you host the Python OCR backend on a public server (e.g. Render, Railway, HuggingFace Spaces)
-const OCR_BACKEND_URL = "http://127.0.0.1:5000/ocr";
+const OCR_BACKEND_URL = "https://kavxarasu-cgpa-back-end.hf.space/ocr";
 
 let ocrExtractedData = null; // Stores parsed results
 
