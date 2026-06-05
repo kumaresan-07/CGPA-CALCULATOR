@@ -305,154 +305,131 @@ def parse_elements(elements):
                 break
 
     # 3. Extract Course Rows
-    # A Course code matches: standard (e.g. CSB1431) or regulation (e.g. 18AMP401L)
-    course_code_regex = re.compile(r'\b(?:\d{2})?[A-Z]{2,5}\d{3,4}[A-Z]?\b')
+    # Relaxed course code pattern to allow OCR digit typos (e.g. 2 to 4 digits) and spaces
+    course_code_regex = re.compile(r'\b(?:\d{2})?[A-Z]{2,5}\s*\d{2,4}\s*[A-Z]?\b')
     
     course_nodes = []
     for el in elements:
-        cleaned_text = el["text"].replace(" ", "").upper()
-        match = course_code_regex.search(cleaned_text)
+        # Search original text with word boundaries intact
+        match = course_code_regex.search(el["text"].upper())
         if match:
-            # Store the matched course code and its details
-            el["clean_code"] = match.group(0)
+            el["clean_code"] = match.group(0).replace(" ", "")
             course_nodes.append(el)
             
-    # Sort course nodes by their vertical position
-    course_nodes.sort(key=lambda node: node["y"])
+    # Find S.No column indicators (numbers 1-15 on the left edge) as row markers
+    sno_nodes = []
+    for el in elements:
+        txt = el["text"].strip().rstrip('.,_-')
+        if txt.isdigit() and len(txt) <= 2 and el["x"] < 150:
+            sno_nodes.append(el)
+            
+    # Group row coordinates from S.No and course code positions
+    row_ys = []
+    for sno in sno_nodes:
+        y = sno["y"]
+        if not any(abs(y - ry) <= 12 for ry in row_ys):
+            row_ys.append(y)
+    for cn in course_nodes:
+        y = cn["y"]
+        if not any(abs(y - ry) <= 12 for ry in row_ys):
+            row_ys.append(y)
+    row_ys.sort()
+    
+    max_x = max(el["x"] for el in elements) if elements else 1000
+    right_boundary = max_x * 0.65
     
     courses = []
-    
-    # For grade scale matching
     valid_grades = {"O", "A+", "A", "B+", "B", "C", "U", "RA"}
     
-    # We will iterate through each detected course code node
-    for i, code_node in enumerate(course_nodes):
-        y_code = code_node["y"]
-        x_code = code_node["x"]
-        h_code = code_node["h"]
+    for y_row in row_ys:
+        # Find all elements belonging to this row (vertically within 12 pixels)
+        row_elements = [el for el in elements if abs(el["y"] - y_row) <= 12]
         
-        # Define the y range tolerance for items on the same row (about 1.2 times the code node height)
-        y_tolerance = h_code * 1.2
-        
-        # Determine the y-coordinate of the next course code row
-        next_y_code = course_nodes[i+1]["y"] if i + 1 < len(course_nodes) else float('inf')
-        
-        # Find elements on the same row (same y level)
-        row_elements = [el for el in elements if abs(el["y"] - y_code) <= y_tolerance]
-        
-        # Exclude the code node itself
-        row_elements = [el for el in row_elements if el is not code_node]
-        
-        # Find Semester, Grade, and Result from row elements
+        # A. Code: look for any element matching course_code_regex on this row
+        code = ""
+        code_el = None
+        for el in row_elements:
+            match = course_code_regex.search(el["text"].upper())
+            if match:
+                code = match.group(0).replace(" ", "")
+                code_el = el
+                break
+                
+        # Find Semester, Grade, and Result from elements on the right half (x >= right_boundary)
+        right_elements = [el for el in row_elements if el["x"] >= right_boundary]
         semester = None
         grade = None
         result = None
         
-        sem_candidates = []
-        grade_candidates = []
-        result_candidates = []
-        
-        # Heuristics:
-        # Semester is a single digit (typically 1-8). It is located to the right of the course code.
-        # Grade is O, A+, A, B+, B, C, U etc. Located to the right of the course code.
-        # Result is PASS, FAIL, etc. Located to the right of the course code.
-        for re_el in row_elements:
-            if re_el["x"] <= x_code:
-                continue # Columns are to the right of the code
-                
-            txt = re_el["text"].strip()
+        for el in right_elements:
+            txt = el["text"].strip()
             txt_upper = txt.upper()
             
             # Semester check: single digit
             if txt.isdigit() and len(txt) == 1 and 1 <= int(txt) <= 8:
-                sem_candidates.append(re_el)
+                semester = int(txt)
                 
             # Grade check:
-            # Let's clean characters commonly misread by OCR (e.g. A1 -> A+, B1 -> B+, A + -> A+)
             clean_grade = txt_upper.replace(" ", "")
-            if clean_grade == "A1" or clean_grade == "A-PLUS":
-                clean_grade = "A+"
-            elif clean_grade == "B1" or clean_grade == "B-PLUS":
-                clean_grade = "B+"
-            
+            if clean_grade == "A1" or clean_grade == "A-PLUS": clean_grade = "A+"
+            elif clean_grade == "B1" or clean_grade == "B-PLUS": clean_grade = "B+"
             if clean_grade in valid_grades:
-                grade_candidates.append((re_el, clean_grade))
+                grade = clean_grade
                 
             # Result check:
             if "PASS" in txt_upper or "FAIL" in txt_upper or "ARREAR" in txt_upper:
-                result_candidates.append(re_el)
+                result = txt
                 
-        # Choose the best candidates based on relative x-coordinates
-        if sem_candidates:
-            sem_candidates.sort(key=lambda e: e["x"])
-            try:
-                semester = int(sem_candidates[0]["text"])
-            except ValueError:
-                semester = None
-            x_sem_limit = sem_candidates[0]["x"]
-        else:
-            semester = None
-            x_sem_limit = x_code + 250 # fallback limit
-            
-        if grade_candidates:
-            # Sort by proximity to expected grade column or just take the first
-            grade_candidates.sort(key=lambda item: item[0]["x"])
-            grade = grade_candidates[0][1]
-        else:
-            grade = "U" # Default to U if not detected
-            
-        if result_candidates:
-            result_candidates.sort(key=lambda e: e["x"])
-            result = result_candidates[0]["text"]
-        else:
+        # Default fallback values for missing fields
+        if not grade:
+            grade = "U"
+        if not result:
             result = "Pass" if grade != "U" else "Fail"
+        if grade == "U" and result.upper() == "PASS":
+            grade = "A"  # Default pass grade fallback
             
-        # Reconstruct course title
-        # Start with the remainder of the code node text itself
-        code_text = code_node["text"]
-        code_match = re.search(r'\b(?:\d{2})?[A-Z]{2,5}\d{3,4}[A-Z]?\b', code_text)
-        initial_title = ""
-        if code_match:
-            initial_title = code_text[code_match.end():].strip("- ").strip()
-            initial_title = re.sub(r'^[_\-\s]+', '', initial_title).strip()
-            
-        # Gather other title blocks strictly on the same row vertically
-        title_blocks = []
-        y_tolerance_row = max(h_code * 0.8, 12.0)
-        for el in elements:
-            if el is code_node:
-                continue
-            if abs(el["y"] - y_code) <= y_tolerance_row:
-                if el["x"] > x_code - 15 and el["x"] < x_sem_limit - 15:
-                    title_blocks.append(el)
-                    
-        # Sort title blocks left-to-right
-        title_blocks.sort(key=lambda tb: tb["x"])
-        
-        # Clean and join title blocks, extracting any code remainders
+        # E. Reconstruct Title:
+        # Sort elements left-to-right to maintain correct word ordering
         title_parts = []
-        for tb in title_blocks:
-            tb_txt = tb["text"].strip()
-            tb_code_match = re.search(r'\b(?:\d{2})?[A-Z]{2,5}\d{3,4}[A-Z]?\b', tb_txt)
-            if tb_code_match:
-                remainder = tb_txt[tb_code_match.end():].strip("- ").strip()
-                if remainder:
-                    title_parts.append(remainder)
-            else:
-                title_parts.append(tb_txt)
+        row_elements.sort(key=lambda el: el["x"])
+        for el in row_elements:
+            # Exclude S.No index values
+            txt = el["text"].strip()
+            if txt.rstrip('.,_-').isdigit() and len(txt.rstrip('.,_-')) <= 2 and el["x"] < 150:
+                continue
+            # Exclude semester, grade, and result columns on the right half
+            if el["x"] >= right_boundary:
+                continue
                 
+            el_txt = el["text"].strip()
+            # If this is the code node itself, extract only the remainder text
+            if code_el and el is code_el:
+                match = course_code_regex.search(el_txt.upper())
+                if match:
+                    remainder = el_txt[match.end():].strip("- ").strip()
+                    remainder = re.sub(r'^\d+[\s,.]*', '', remainder).strip()
+                    if remainder:
+                        title_parts.append(remainder)
+                continue
+                
+            # Otherwise clean leading row-indices and append the text block
+            el_txt = re.sub(r'^\d+[\s,.]*', '', el_txt).strip()
+            if el_txt and el_txt not in ["-", "_"]:
+                title_parts.append(el_txt)
+                
+        # Combine parts and strip leading garbage/symbols
         title = " ".join(title_parts)
-        if not title:
-            title = initial_title
-                    
-        courses.append({
-            "code": code_node["clean_code"],
-            "title": title or "Unknown Course",
-            "semester": semester,
-            "grade": grade,
-            "result": result
-        })
+        title = re.sub(r'^[^a-zA-Z0-9\(]*', '', title).strip()
         
+        if title or code:
+            courses.append({
+                "code": code,
+                "title": title or "Unknown Course",
+                "semester": semester,
+                "grade": grade,
+                "result": result
+            })
+            
     # Determine the overall semester
     semesters = [c["semester"] for c in courses if c["semester"] is not None]
     overall_sem = max(set(semesters), key=semesters.count) if semesters else header_detected_sem
