@@ -51,33 +51,96 @@ def process_ocr():
     if file.filename == '':
         return jsonify({"error": "Empty filename"}), 400
         
+    engine = request.form.get('engine', 'paddle')
+    
     try:
-        # Read image file bytes directly into numpy array
-        file_bytes = np.frombuffer(file.read(), np.uint8)
-        img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        # Read image file bytes
+        file_content = file.read()
         
-        if img is None:
-            return jsonify({"error": "Failed to decode image"}), 400
+        parsed_data = None
+        
+        if engine == 'ocrspace':
+            print("Processing with OCR.space engine...")
+            elements = get_ocr_space_elements(file_content, file.filename)
+            if elements:
+                parsed_data = parse_elements(elements)
+            else:
+                print("OCR.space engine failed. Falling back to PaddleOCR...")
+                
+        if parsed_data is None:
+            # Read image file bytes directly into numpy array
+            file_bytes = np.frombuffer(file_content, np.uint8)
+            img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
             
-        # Resize image to optimize CPU inference speed (reduces pixel count while keeping text legible)
-        max_dim = 1000
-        h, w = img.shape[:2]
-        if max(h, w) > max_dim:
-            scale = max_dim / float(max(h, w))
-            img = cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
+            if img is None:
+                return jsonify({"error": "Failed to decode image"}), 400
+                
+            # Resize image to optimize CPU inference speed (reduces pixel count while keeping text legible)
+            max_dim = 1000
+            h, w = img.shape[:2]
+            if max(h, w) > max_dim:
+                scale = max_dim / float(max(h, w))
+                img = cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
+                
+            # Run PaddleOCR
+            result = ocr.ocr(img)
             
-        # Run PaddleOCR
-        result = ocr.ocr(img)
-        
-        # Parse OCR results
-        parsed_data = parse_ocr_results(result)
-        
+            # Parse OCR results
+            parsed_data = parse_ocr_results(result)
+            
         return jsonify(parsed_data)
         
     except Exception as e:
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+def get_ocr_space_elements(file_bytes, filename):
+    import requests
+    try:
+        payload = {
+            'apikey': 'helloworld',
+            'isOverlayRequired': True,
+            'isTable': True,
+            'language': 'eng',
+            'scale': True
+        }
+        files = {
+            'file': (filename or 'image.png', file_bytes, 'image/png')
+        }
+        res = requests.post('https://api.ocr.space/parse/image', data=payload, files=files, timeout=20)
+        if res.status_code != 200:
+            return None
+            
+        ocr_space_res = res.json()
+        elements = []
+        for result in ocr_space_res.get("ParsedResults", []):
+            overlay = result.get("TextOverlay", {})
+            for line in overlay.get("Lines", []):
+                words = line.get("Words", [])
+                if not words:
+                    continue
+                xs = [w.get("Left", 0) for w in words]
+                x_ends = [w.get("Left", 0) + w.get("Width", 0) for w in words]
+                ys = [w.get("Top", 0) for w in words]
+                y_ends = [w.get("Top", 0) + w.get("Height", 0) for w in words]
+                
+                x_min, x_max = min(xs), max(x_ends)
+                y_min, y_max = min(ys), max(y_ends)
+                
+                elements.append({
+                    "text": line.get("LineText", ""),
+                    "box": [[x_min, y_min], [x_max, y_min], [x_max, y_max], [x_min, y_max]],
+                    "x": (x_min + x_max) / 2.0,
+                    "y": (y_min + y_max) / 2.0,
+                    "w": x_max - x_min,
+                    "h": y_max - y_min,
+                    "confidence": 1.0
+                })
+        return elements
+    except Exception as e:
+        print("OCR.space request failed:", e)
+        return None
 
 def parse_ocr_results(result):
     if not result:
@@ -115,18 +178,13 @@ def parse_ocr_results(result):
                     x_min, x_max = min(xs), max(xs)
                     y_min, y_max = min(ys), max(ys)
                     
-                    x_center = (x_min + x_max) / 2.0
-                    y_center = (y_min + y_max) / 2.0
-                    height = y_max - y_min
-                    width = x_max - x_min
-                    
                     elements.append({
                         "text": text,
                         "box": box,
-                        "x": x_center,
-                        "y": y_center,
-                        "w": width,
-                        "h": height,
+                        "x": (x_min + x_max) / 2.0,
+                        "y": (y_min + y_max) / 2.0,
+                        "w": x_max - x_min,
+                        "h": y_max - y_min,
                         "confidence": score
                     })
                     
@@ -149,21 +207,19 @@ def parse_ocr_results(result):
                 x_min, x_max = min(xs), max(xs)
                 y_min, y_max = min(ys), max(ys)
                 
-                x_center = (x_min + x_max) / 2.0
-                y_center = (y_min + y_max) / 2.0
-                height = y_max - y_min
-                width = x_max - x_min
-                
                 elements.append({
                     "text": text,
                     "box": box,
-                    "x": x_center,
-                    "y": y_center,
-                    "w": width,
-                    "h": height,
+                    "x": (x_min + x_max) / 2.0,
+                    "y": (y_min + y_max) / 2.0,
+                    "w": x_max - x_min,
+                    "h": y_max - y_min,
                     "confidence": score
                 })
                 
+    return parse_elements(elements)
+
+def parse_elements(elements):
     if not elements:
         return {"department": None, "semester": None, "courses": []}
         

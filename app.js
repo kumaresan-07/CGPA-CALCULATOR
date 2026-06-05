@@ -1531,11 +1531,13 @@ function handleOCRFile(file) {
     const statusMsg = document.getElementById("ocr-status-message");
     const progressFill = document.getElementById("ocr-progress-fill");
     
-    statusMsg.innerText = "Connecting to local PaddleOCR server...";
+    const engine = document.getElementById("select-ocr-engine") ? document.getElementById("select-ocr-engine").value : "paddle";
+    statusMsg.innerText = engine === "ocrspace" ? "Connecting to OCR.space API..." : "Connecting to PaddleOCR Server...";
     progressFill.style.width = "20%";
     
     const formData = new FormData();
     formData.append("image", file);
+    formData.append("engine", engine);
     
     fetch(OCR_BACKEND_URL, {
         method: "POST",

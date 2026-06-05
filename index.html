@@ -526,6 +526,15 @@
             
             <!-- Step 1: Upload Image -->
             <div class="modal-body" id="ocr-step-upload">
+                <div class="ocr-engine-selector" style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <label for="select-ocr-engine" style="font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-body); font-weight: 500;">OCR Engine:</label>
+                    <div class="select-wrapper" style="flex: 1; max-width: 180px;">
+                        <select id="select-ocr-engine" class="custom-select" style="padding: 6px 30px 6px 12px; font-size: 0.8rem; border-radius: 6px;">
+                            <option value="paddle" selected>PaddleOCR (Accurate)</option>
+                            <option value="ocrspace">OCR.space (Fast API)</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="drag-drop-zone" id="ocr-drag-drop">
                     <div class="upload-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
