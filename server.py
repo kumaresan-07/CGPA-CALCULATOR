@@ -99,7 +99,7 @@ def get_ocr_space_elements(file_bytes, filename):
     import requests
     try:
         payload = {
-            'apikey': 'helloworld',
+            'apikey': 'K88904419488957',
             'isOverlayRequired': True,
             'isTable': True,
             'language': 'eng',
