@@ -19,7 +19,7 @@ COPY runtime.txt /app/
 
 # Install python dependencies directly to save build steps
 RUN pip install --no-cache-dir \
-    "paddlepaddle>=2.6.0,<3.0.0" \
+    "paddlepaddle>=3.0.0" \
     paddleocr>=2.7.0 \
     flask \
     flask-cors \
@@ -35,7 +35,7 @@ ENV PYTHONUNBUFFERED=1
 
 # Pre-download the PaddleOCR model during the Docker build stage
 # so it doesn't slow down the first request in production.
-RUN python -c "from paddleocr import PaddleOCR; PaddleOCR(lang='en', use_angle_cls=False)"
+RUN python -c "from paddleocr import PaddleOCR; PaddleOCR(lang='en', enable_mkldnn=False)"
 
 # Start the Flask app
 CMD ["python", "server.py"]
