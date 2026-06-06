@@ -80,7 +80,7 @@ const CURRICULUM_PRESETS = {
             { code: "CSB1411", title: "Project Phase I", credits: 2 }
         ],
         8: [
-            { code: "CSB1431", title: "Project Phase II", credits: 8 }
+            { code: "CSB1431", title: "Project Work", credits: 8 }
         ]
     },
     // IT Curriculum Presets
@@ -164,7 +164,7 @@ const CURRICULUM_PRESETS = {
             { code: "ITB1411", title: "Project Phase I", credits: 2 }
         ],
         8: [
-            { code: "ITB1421", title: "Project Phase II / Industrial Training", credits: 10 }
+            { code: "ITB1421", title: "Project Work / Industrial Training", credits: 10 }
         ]
     },
     // AIDS Curriculum Presets
@@ -207,7 +207,7 @@ const CURRICULUM_PRESETS = {
     // AIML Curriculum Presets
     "ai-ml": {
         8: [
-            { code: "", title: "Project Phase II / Project Work", credits: 16 }
+            { code: "", title: "Project Work", credits: 16 }
         ]
     },
     // Civil Engineering Curriculum Presets
@@ -417,7 +417,7 @@ const CURRICULUM_PRESETS = {
             { code: "EEB1411", title: "Project Phase I", credits: 2 }
         ],
         8: [
-            { code: "EEB1431", title: "Project Phase II", credits: 8 }
+            { code: "EEB1431", title: "Project Work", credits: 8 }
         ]
     },
     // ECE Curriculum Presets

@@ -99,12 +99,12 @@ def get_ocr_space_elements(file_bytes, filename):
     import requests
     try:
         payload = {
-            'apikey': os.environ.get('OCR_SPACE_KEY', 'helloworld'),
+            'apikey': os.environ.get('OCR_SPACE_KEY', '99_UN_KADAVUL_AI_PATHUKAPU'),
             'isOverlayRequired': True,
             'isTable': True,
             'language': 'eng',
             'scale': True
-        }
+        }        
         files = {
             'file': (filename or 'image.png', file_bytes, 'image/png')
         }
