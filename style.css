@@ -2265,3 +2265,24 @@ body::after {
         font-size: 0.75rem;
     }
 }
+
+/* 8. MOBILE STICKY SPEEDOMETER WIDGET */
+@media (max-width: 1024px) {
+    .speedometer-container {
+        position: sticky;
+        top: 0;
+        z-index: 95;
+        background: var(--panel-bg);
+        margin-left: -24px;
+        margin-right: -24px;
+        padding-left: 24px;
+        padding-right: 24px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: 1.5px solid var(--panel-border);
+        box-shadow: 0 10px 15px -10px rgba(0, 0, 0, 0.15);
+    }
+}
