@@ -2240,6 +2240,10 @@ body::after {
 }
 
 /* 7. SEMICIRCLE SPEEDOMETER GAUGE ALIGNMENT */
+.semicircle-gauge .gpa-gauge-svg {
+    transform: rotate(0deg) !important; /* Reset 90deg rotation from circular gauges */
+}
+
 .semicircle-gauge .gauge-value {
     top: 72% !important;
     font-size: 1.45rem;
