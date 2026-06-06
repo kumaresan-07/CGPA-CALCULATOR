@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -239,13 +239,11 @@
                     <div class="scoreboard-section" style="margin-bottom: 24px;">
                         <!-- Speedometer card -->
                         <div class="score-widget-card speedometer-container" id="sgpa-speedometer">
-                            <div class="gpa-gauge-container">
+                            <div class="gpa-gauge-container semicircle-gauge">
                                 <svg class="gpa-gauge-svg" viewBox="0 0 140 140">
-                                    <circle class="gauge-ticks" cx="70" cy="70" r="54" stroke="var(--panel-border)" stroke-width="2.5" stroke-dasharray="1.5 5" fill="none" style="opacity: 0.4;"></circle>
-                                    <circle cx="70" cy="70" r="63" stroke="var(--panel-border)" stroke-width="1" fill="none" style="opacity: 0.2;"></circle>
-                                    <circle class="gauge-track" cx="70" cy="70" r="60"></circle>
-                                    <circle class="gauge-fill" id="sgpa-gauge-fill" cx="70" cy="70" r="60"></circle>
-                                    <g class="speedometer-needle-group" style="transform: rotate(calc(-90deg + (var(--sgpa-value, 0) / 10) * 360deg)); transform-origin: 70px 70px; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
+                                    <path class="gauge-track" d="M 10 70 A 60 60 0 0 1 130 70" fill="none" stroke-width="7" stroke-linecap="round"></path>
+                                    <path class="gauge-fill" id="sgpa-gauge-fill" d="M 10 70 A 60 60 0 0 1 130 70" fill="none" stroke-width="7" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5"></path>
+                                    <g class="speedometer-needle-group" style="transform: rotate(calc(-90deg + (var(--sgpa-value, 0) / 10) * 180deg)); transform-origin: 70px 70px; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
                                         <polygon points="68,72 70,12 72,72" fill="var(--accent-secondary)" class="speedometer-needle"></polygon>
                                         <circle cx="70" cy="70" r="5" fill="var(--text-primary)"></circle>
                                         <circle cx="70" cy="70" r="2.5" fill="var(--accent-secondary)"></circle>
@@ -395,13 +393,11 @@
                     <div class="scoreboard-section" style="margin-bottom: 24px;">
                         <!-- Speedometer card -->
                         <div class="score-widget-card speedometer-container" id="cgpa-speedometer">
-                            <div class="gpa-gauge-container">
+                            <div class="gpa-gauge-container semicircle-gauge">
                                 <svg class="gpa-gauge-svg" viewBox="0 0 140 140">
-                                    <circle class="gauge-ticks" cx="70" cy="70" r="54" stroke="var(--panel-border)" stroke-width="2.5" stroke-dasharray="1.5 5" fill="none" style="opacity: 0.4;"></circle>
-                                    <circle cx="70" cy="70" r="63" stroke="var(--panel-border)" stroke-width="1" fill="none" style="opacity: 0.2;"></circle>
-                                    <circle class="gauge-track" cx="70" cy="70" r="60"></circle>
-                                    <circle class="gauge-fill" id="cgpa-gauge-fill" cx="70" cy="70" r="60" style="stroke: var(--accent-secondary);"></circle>
-                                    <g class="speedometer-needle-group" style="transform: rotate(calc(-90deg + (var(--cgpa-value, 0) / 10) * 360deg)); transform-origin: 70px 70px; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
+                                    <path class="gauge-track" d="M 10 70 A 60 60 0 0 1 130 70" fill="none" stroke-width="7" stroke-linecap="round"></path>
+                                    <path class="gauge-fill" id="cgpa-gauge-fill" d="M 10 70 A 60 60 0 0 1 130 70" fill="none" stroke-width="7" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5" style="stroke: var(--accent-secondary);"></path>
+                                    <g class="speedometer-needle-group" style="transform: rotate(calc(-90deg + (var(--cgpa-value, 0) / 10) * 180deg)); transform-origin: 70px 70px; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
                                         <polygon points="68,72 70,12 72,72" fill="var(--accent-secondary)" class="speedometer-needle"></polygon>
                                         <circle cx="70" cy="70" r="5" fill="var(--text-primary)"></circle>
                                         <circle cx="70" cy="70" r="2.5" fill="var(--accent-secondary)"></circle>
@@ -560,24 +556,28 @@
     <div class="modal-overlay" id="ocr-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">
+                <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                         <circle cx="12" cy="13" r="4"/>
                     </svg>
-                    Scan Grade Sheet with PaddleOCR
+                    Scan Grade Sheet
                 </h3>
+                <div class="ocr-status-pill" id="ocr-status-pill">
+                    <span class="status-dot dot-green"></span>
+                    <span class="status-text">Scanner Ready</span>
+                </div>
                 <button class="modal-close-btn" id="btn-close-ocr-modal">&times;</button>
             </div>
             
             <!-- Step 1: Upload Image -->
             <div class="modal-body" id="ocr-step-upload">
-                <div class="ocr-engine-selector" style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                    <label for="select-ocr-engine" style="font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-body); font-weight: 500;">OCR Engine:</label>
-                    <div class="select-wrapper" style="flex: 1; max-width: 180px;">
+                <div class="ocr-engine-selector" style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; background: rgba(18, 48, 90, 0.03); border-radius: 8px; border: 1px solid var(--panel-border);">
+                    <label for="select-ocr-engine" style="font-size: 0.85rem; color: var(--text-secondary); font-family: var(--font-body); font-weight: 600;">OCR Engine Mode:</label>
+                    <div class="select-wrapper" style="flex: 1; max-width: 200px;">
                         <select id="select-ocr-engine" class="custom-select" style="padding: 6px 30px 6px 12px; font-size: 0.8rem; border-radius: 6px;">
-                            <option value="paddle" selected>PaddleOCR (Accurate)</option>
-                            <option value="ocrspace">OCR.space (Fast API)</option>
+                            <option value="ocrspace" selected>OCR API Scanner (Default)</option>
+                            <option value="paddle">PaddleOCR Offline (Accurate)</option>
                         </select>
                     </div>
                 </div>
@@ -597,14 +597,16 @@
             
             <!-- Step 2: Processing -->
             <div class="modal-body" id="ocr-step-processing" style="display: none;">
-                <div class="processing-container">
-                    <div class="loading-spinner"></div>
-                    <h4 class="processing-title">Processing Image...</h4>
-                    <p class="processing-subtitle" id="ocr-status-message">Uploading image to PaddleOCR backend...</p>
-                    
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill" id="ocr-progress-fill" style="width: 15%;"></div>
+                <div class="processing-container" style="text-align: center; padding: 20px 0;">
+                    <div class="circular-progress-container">
+                        <svg class="progress-ring-svg" width="120" height="120">
+                            <circle class="progress-ring-track" cx="60" cy="60" r="50" stroke="#EBF1F6" stroke-width="8" fill="none"></circle>
+                            <circle class="progress-ring-fill" id="ocr-progress-ring-fill" cx="60" cy="60" r="50" stroke="var(--accent-primary)" stroke-width="8" fill="none" stroke-dasharray="314.16" stroke-dashoffset="314.16" stroke-linecap="round"></circle>
+                        </svg>
+                        <div class="progress-ring-text" id="ocr-progress-percent">0%</div>
                     </div>
+                    <h4 class="processing-title" style="margin-top: 15px; font-family: var(--font-heading); font-size: 1.1rem; color: var(--text-primary);">Processing Academic Sheet</h4>
+                    <p class="processing-subtitle" id="ocr-status-message" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">Initializing connection...</p>
                 </div>
             </div>
             

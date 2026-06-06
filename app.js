@@ -515,7 +515,7 @@ let appState = {
     history: [],
     gradeScale: { ...DEFAULT_GRADE_SCALE },
     decimals: 2,
-    theme: "dark",
+    theme: "light",
     regulations: "Regulations 2022"
 };
 
@@ -616,11 +616,10 @@ function calculateSGPA() {
     // Update SGPA value display
     document.getElementById("sgpa-val").innerText = sgpa.toFixed(decimals);
     
-    // Update circular gauge meter
+    // Update circular gauge meter (semicircle)
     const fill = document.getElementById("sgpa-gauge-fill");
     if (fill) {
-        // SVG circle radius is 60. Circumference is 2 * Math.PI * 60 = 376.99
-        const circumference = 2 * Math.PI * 60;
+        const circumference = 188.5; // Semicircle length
         const percent = sgpa / 10;
         const offset = circumference - (percent * circumference);
         fill.style.strokeDashoffset = offset;
@@ -630,21 +629,29 @@ function calculateSGPA() {
     const label = document.getElementById("sgpa-status-label");
     const desc = document.getElementById("sgpa-status-desc");
     
+    const hasArrears = appState.courses.some(course => course.grade === "U" && parseFloat(course.credits) > 0);
+    
     if (sgpa === 0) {
-        label.innerText = "Semester SGPA";
-        desc.innerText = "Fill in grades to see your computed semester grade point average.";
+        label.innerText = "Semester SGPA Status";
+        desc.innerText = "Fill in grades in the course sheet above to see your computed semester grade point average and academic standing insights.";
+    } else if (hasArrears) {
+        label.innerText = "Arrears / Re-appearance Alert ⚠️";
+        desc.innerText = `Your Semester SGPA is computed as ${sgpa.toFixed(decimals)}. You have pending subjects with 'U' grade. We recommend clearing these subjects in the upcoming examinations to restore your academic eligibility.`;
     } else if (sgpa >= 9.0) {
-        label.innerText = "Excellent Performance! 🌟";
-        desc.innerText = `Outstanding Semester SGPA of ${sgpa.toFixed(decimals)}. Keep shining like an elite engineer!`;
-    } else if (sgpa >= 7.5) {
-        label.innerText = "First Class Division! 👍";
-        desc.innerText = `Healthy Semester SGPA of ${sgpa.toFixed(decimals)}. You are performing solid work in your studies.`;
+        label.innerText = "Distinction Grade Eligible! 🏆";
+        desc.innerText = `Outstanding Semester SGPA of ${sgpa.toFixed(decimals)}. You are performing in the top 5% of students and are fully on track for a First Class with Distinction. Maintain this elite average!`;
+    } else if (sgpa >= 8.0) {
+        label.innerText = "First Class standing! 🌟";
+        desc.innerText = `Excellent academic standing with an SGPA of ${sgpa.toFixed(decimals)}. You easily qualify for a First Class division. Keep up the high standards!`;
+    } else if (sgpa >= 6.5) {
+        label.innerText = "First Class Candidate 👍";
+        desc.innerText = `Solid Semester SGPA of ${sgpa.toFixed(decimals)}. You are eligible for a First Class division. Pushing slightly harder in high-credit subjects will secure your position.`;
     } else if (sgpa >= 5.0) {
-        label.innerText = "Passed Semester! 🎓";
-        desc.innerText = `Semester SGPA is ${sgpa.toFixed(decimals)}. Passed all courses, focus on improving credits weights next semester.`;
+        label.innerText = "Second Class standing 🎓";
+        desc.innerText = `Semester SGPA is ${sgpa.toFixed(decimals)}. You have successfully passed all courses. Focus on strengthening your core concept understanding next semester to lift your graduation rank.`;
     } else {
         label.innerText = "Action Required ⚠️";
-        desc.innerText = `Semester SGPA is ${sgpa.toFixed(decimals)}. You have some arrears or re-appearances (U grade). Prepare well!`;
+        desc.innerText = `Semester SGPA is ${sgpa.toFixed(decimals)}. Your average is below the pass threshold. Please seek academic guidance to clear pending papers.`;
     }
     
     return { sgpa, totalCredits };
@@ -674,10 +681,10 @@ function calculateCGPA() {
     document.getElementById("cgpa-total-credits").innerText = totalCredits.toFixed(1);
     document.getElementById("cgpa-val").innerText = cgpa.toFixed(decimals);
     
-    // Update CGPA circular gauge
+    // Update CGPA circular gauge (semicircle)
     const fill = document.getElementById("cgpa-gauge-fill");
     if (fill) {
-        const circumference = 2 * Math.PI * 60;
+        const circumference = 188.5; // Semicircle length
         const percent = cgpa / 10;
         const offset = circumference - (percent * circumference);
         fill.style.strokeDashoffset = offset;
@@ -1145,7 +1152,7 @@ function resetApp() {
             history: [],
             gradeScale: { ...DEFAULT_GRADE_SCALE },
             decimals: 2,
-            theme: "dark",
+            theme: "light",
             regulations: "Regulations 2022"
         };
         
@@ -1519,6 +1526,71 @@ function resetOCRModal() {
     document.getElementById("ocr-alerts-container").innerHTML = "";
 }
 
+// OCR STATUS INDICATOR AND ANIMATION HELPERS
+function updateScannerStatus(state) {
+    const pill = document.getElementById("ocr-status-pill");
+    if (!pill) return;
+    
+    const dot = pill.querySelector(".status-dot");
+    const text = pill.querySelector(".status-text");
+    
+    if (state === "ready") {
+        dot.className = "status-dot dot-green";
+        text.innerText = "Scanner Ready";
+    } else if (state === "processing") {
+        dot.className = "status-dot dot-yellow";
+        text.innerText = "Processing Sheet";
+    } else if (state === "error") {
+        dot.className = "status-dot dot-red";
+        text.innerText = "Error Processing";
+    }
+}
+
+function startOCRProgressBarAnimation() {
+    const statusMsg = document.getElementById("ocr-status-message");
+    const progressFill = document.getElementById("ocr-progress-ring-fill");
+    const progressPercentText = document.getElementById("ocr-progress-percent");
+    
+    const messages = [
+        { progress: 15, text: "Uploading Grade Sheet..." },
+        { progress: 35, text: "Analyzing Academic Record..." },
+        { progress: 60, text: "Extracting Course Information..." },
+        { progress: 85, text: "Calculating SGPA..." },
+        { progress: 95, text: "Preparing Results..." }
+    ];
+    
+    let currentStep = 0;
+    const circumference = 2 * Math.PI * 50; // 314.16
+    
+    const setProgress = (percent) => {
+        if (progressPercentText) progressPercentText.innerText = `${Math.round(percent)}%`;
+        if (progressFill) {
+            const offset = circumference - (percent / 100) * circumference;
+            progressFill.style.strokeDashoffset = offset;
+        }
+    };
+    
+    setProgress(0);
+    
+    const intervalId = setInterval(() => {
+        if (currentStep < messages.length) {
+            setProgress(messages[currentStep].progress);
+            if (statusMsg) statusMsg.innerText = messages[currentStep].text;
+            currentStep++;
+        }
+    }, 1000);
+    
+    return {
+        stop: (success = true) => {
+            clearInterval(intervalId);
+            if (success) {
+                setProgress(100);
+                if (statusMsg) statusMsg.innerText = "Preparing Results...";
+            }
+        }
+    };
+}
+
 function handleOCRFile(file) {
     if (!file.type.match("image.*")) {
         showToast("Please upload a valid image file (PNG, JPG, JPEG).", "danger");
@@ -1528,12 +1600,13 @@ function handleOCRFile(file) {
     document.getElementById("ocr-step-upload").style.display = "none";
     document.getElementById("ocr-step-processing").style.display = "block";
     
-    const statusMsg = document.getElementById("ocr-status-message");
-    const progressFill = document.getElementById("ocr-progress-fill");
+    // Update status to processing (Yellow 🟡)
+    updateScannerStatus("processing");
     
-    const engine = document.getElementById("select-ocr-engine") ? document.getElementById("select-ocr-engine").value : "paddle";
-    statusMsg.innerText = engine === "ocrspace" ? "Connecting to OCR.space API..." : "Connecting to PaddleOCR Server...";
-    progressFill.style.width = "20%";
+    // Start circular loader animation
+    const loader = startOCRProgressBarAnimation();
+    
+    const engine = document.getElementById("select-ocr-engine") ? document.getElementById("select-ocr-engine").value : "ocrspace";
     
     const formData = new FormData();
     formData.append("image", file);
@@ -1544,22 +1617,23 @@ function handleOCRFile(file) {
         body: formData
     })
     .then(response => {
-        progressFill.style.width = "70%";
-        statusMsg.innerText = "Analyzing text positions and structures...";
         if (!response.ok) {
             throw new Error(`Server returned status ${response.status}`);
         }
         return response.json();
     })
     .then(data => {
-        progressFill.style.width = "100%";
+        loader.stop(true);
+        updateScannerStatus("ready"); // Status ready (Green 🟢)
         setTimeout(() => {
             displayOCRResults(data);
-        }, 300);
+        }, 500);
     })
     .catch(error => {
         console.error("OCR API error: ", error);
+        loader.stop(false);
         resetOCRModal();
+        updateScannerStatus("error"); // Status error (Red 🔴)
         showToast("OCR processing failed. Make sure the local server is running.", "danger");
         showOCROfflineInstructions();
     });

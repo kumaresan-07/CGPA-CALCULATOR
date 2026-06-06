@@ -5,55 +5,46 @@
     --font-heading: 'Merriweather', serif;
     --font-body: 'Inter', sans-serif;
 
-    /* Dark Theme (Professional Dark Portal) */
-    --bg-gradient: linear-gradient(135deg, #0b1329 0%, #080c18 100%);
-    --panel-bg: #111c3a;
-    --panel-border: #1e2a4a;
-    --panel-border-hover: #2b3d6a;
-    --text-primary: #f8fafc;
-    --text-secondary: #d1d5db;
-    --text-muted: #9ca3af;
-    --accent-primary: #0F2D52;
-    /* Navy Blue */
-    --accent-glow: rgba(200, 169, 81, 0.15);
-    --accent-secondary: #c8a951;
-    /* University Gold */
-    --accent-success: #10b981;
-    /* Emerald */
-    --accent-danger: #ef4444;
-    /* Rose */
-    --accent-warning: #f59e0b;
-    /* Amber */
+    /* Light Theme (University ERP Aesthetic) */
+    --bg-gradient: linear-gradient(135deg, #F7F9FC 0%, #EBF1F6 100%);
+    --panel-bg: #FFFFFF;
+    --panel-border: #E5E7EB;
+    --panel-border-hover: #D1D5DB;
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --accent-primary: #12305A; /* Navy Blue */
+    --accent-glow: rgba(18, 48, 90, 0.05);
+    --accent-secondary: #D4A437; /* University Gold */
+    --accent-success: #16A34A; /* Emerald */
+    --accent-danger: #DC2626; /* Crimson Red */
+    --accent-warning: #F59E0B; /* Amber/Gold */
 
-    --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), 0 10px 15px -3px rgba(18, 48, 90, 0.04);
     --glass-blur: 0px;
-    --transition-speed: 0.2s;
+    --transition-speed: 0.25s;
 
     --glow-1: none;
     --glow-2: none;
 }
 
-[data-theme="light"] {
-    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    --panel-bg: #ffffff;
-    --panel-border: #e2e8f0;
-    --panel-border-hover: #cbd5e1;
-    --text-primary: #1f2937;
-    --text-secondary: #4b5563;
-    --text-muted: #9ca3af;
-    --accent-primary: #0f2d52;
-    /* Navy Blue */
-    --accent-glow: rgba(15, 45, 82, 0.08);
-    --accent-secondary: #c8a951;
-    /* University Gold */
-    --accent-success: #15803d;
-    /* Forest Green */
-    --accent-danger: #b91c1c;
-    /* Crimson Red */
-    --accent-warning: #b45309;
-    /* Deep Gold/Amber */
+[data-theme="dark"] {
+    /* Dark Theme (Professional Dark Portal) */
+    --bg-gradient: linear-gradient(135deg, #0A1424 0%, #060A12 100%);
+    --panel-bg: #121E31;
+    --panel-border: #1E2E48;
+    --panel-border-hover: #2B3F5D;
+    --text-primary: #F3F4F6;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
+    --accent-primary: #1C3D6E;
+    --accent-glow: rgba(212, 164, 55, 0.15);
+    --accent-secondary: #D4A437; /* Gold stays gold */
+    --accent-success: #16A34A;
+    --accent-danger: #DC2626;
+    --accent-warning: #F59E0B;
 
-    --card-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
     --glow-1: none;
     --glow-2: none;
 }
@@ -151,9 +142,12 @@ body::after {
     color: var(--text-primary);
 }
 
-[data-theme="light"] .brand-info h1 {
+.brand-info h1 {
     color: var(--accent-primary);
-    /* Navy Blue in Light Theme */
+}
+
+[data-theme="dark"] .brand-info h1 {
+    color: var(--text-primary);
 }
 
 .brand-info p {
@@ -219,9 +213,7 @@ body::after {
     border-color: var(--accent-primary);
 }
 
-[data-theme="light"] .btn-primary {
-    color: #ffffff;
-}
+
 
 .btn-primary:hover {
     background: var(--accent-secondary);
@@ -283,6 +275,14 @@ body::after {
     gap: 20px;
 }
 
+@media (min-width: 1025px) {
+    .sidebar-panel {
+        position: sticky;
+        top: 24px;
+        z-index: 10;
+    }
+}
+
 .sidebar-title {
     font-family: var(--font-heading);
     font-size: 1.15rem;
@@ -321,7 +321,7 @@ body::after {
     font-family: var(--font-body);
     font-size: 0.9rem;
     color: var(--text-primary);
-    background: #091122;
+    background: #ffffff;
     border: 1px solid var(--panel-border);
     border-radius: 8px;
     appearance: none;
@@ -329,8 +329,8 @@ body::after {
     transition: all 0.2s ease;
 }
 
-[data-theme="light"] .custom-select {
-    background: #ffffff;
+[data-theme="dark"] .custom-select {
+    background: #091122;
 }
 
 .custom-select:focus {
@@ -372,7 +372,7 @@ body::after {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgba(255, 255, 255, 0.015);
+    background: #f8fafc;
     border: 1px solid var(--panel-border);
     border-radius: 8px;
     padding: 12px 6px;
@@ -380,8 +380,8 @@ body::after {
     gap: 8px;
 }
 
-[data-theme="light"] .sidebar-gauge-card {
-    background: #f8fafc;
+[data-theme="dark"] .sidebar-gauge-card {
+    background: rgba(255, 255, 255, 0.015);
 }
 
 .sidebar-gauge-card .gpa-gauge-container {
@@ -408,8 +408,8 @@ body::after {
 
 /* Quick stats list inside sidebar */
 .quick-stats {
-    background: rgba(200, 169, 81, 0.04);
-    border: 1px solid rgba(200, 169, 81, 0.15);
+    background: #F7F9FC;
+    border: 1px solid var(--panel-border);
     border-radius: 8px;
     padding: 14px;
     display: flex;
@@ -417,9 +417,9 @@ body::after {
     gap: 10px;
 }
 
-[data-theme="light"] .quick-stats {
-    background: #f8fafc;
-    border-color: var(--panel-border);
+[data-theme="dark"] .quick-stats {
+    background: rgba(200, 169, 81, 0.04);
+    border-color: rgba(200, 169, 81, 0.15);
 }
 
 .stat-item {
@@ -546,11 +546,11 @@ body::after {
     overflow-x: auto;
     border-radius: 8px;
     border: 1px solid var(--panel-border);
-    background: #091122;
+    background: #ffffff;
 }
 
-[data-theme="light"] .table-responsive {
-    background: #ffffff;
+[data-theme="dark"] .table-responsive {
+    background: #091122;
 }
 
 .course-table {
@@ -560,19 +560,19 @@ body::after {
 }
 
 .course-table th {
-    background: #0e1a30;
+    background: #f1f5f9;
     padding: 14px 16px;
     font-weight: 700;
     font-size: 0.8rem;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     border-bottom: 1.5px solid var(--panel-border);
 }
 
-[data-theme="light"] .course-table th {
-    background: #f1f5f9;
-    color: var(--text-primary);
+[data-theme="dark"] .course-table th {
+    background: #0e1a30;
+    color: var(--text-secondary);
 }
 
 .course-table td {
@@ -622,7 +622,7 @@ body::after {
 }
 
 .table-input {
-    background: #060b17;
+    background: #ffffff;
     border: 1px solid var(--panel-border);
     color: var(--text-primary);
     padding: 8px 12px;
@@ -632,8 +632,8 @@ body::after {
     transition: all 0.2s ease;
 }
 
-[data-theme="light"] .table-input {
-    background: #ffffff;
+[data-theme="dark"] .table-input {
+    background: #060b17;
 }
 
 .table-input:focus {
@@ -689,15 +689,15 @@ body::after {
 }
 
 .grade-A {
-    background: rgba(15, 45, 82, 0.08);
-    color: var(--text-primary);
-    border-color: var(--panel-border);
-}
-
-[data-theme="light"] .grade-A {
     background: rgba(15, 45, 82, 0.05);
     color: var(--accent-primary);
     border-color: rgba(15, 45, 82, 0.15);
+}
+
+[data-theme="dark"] .grade-A {
+    background: rgba(15, 45, 82, 0.08);
+    color: var(--text-primary);
+    border-color: var(--panel-border);
 }
 
 .grade-B-plus {
@@ -730,6 +730,23 @@ body::after {
     grid-template-columns: 310px 1fr;
     gap: 20px;
     align-items: stretch;
+}
+
+@media (min-width: 1025px) {
+    .scoreboard-section {
+        position: sticky;
+        top: -1px; /* Align slightly above edge to cover pixel gaps */
+        z-index: 90;
+        background: var(--panel-bg);
+        margin-left: -24px;
+        margin-right: -24px;
+        padding-left: 24px;
+        padding-right: 24px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1.5px solid var(--panel-border);
+        box-shadow: 0 10px 15px -10px rgba(0, 0, 0, 0.4);
+    }
 }
 
 @media (max-width: 1024px) {
@@ -781,12 +798,12 @@ body::after {
 
 .gauge-track {
     fill: none;
-    stroke: #1e2a4a;
+    stroke: #e2e8f0;
     stroke-width: 7;
 }
 
-[data-theme="light"] .gauge-track {
-    stroke: #e2e8f0;
+[data-theme="dark"] .gauge-track {
+    stroke: #1e2a4a;
 }
 
 .gauge-fill {
@@ -888,7 +905,7 @@ body::after {
 }
 
 .min-stat-box {
-    background: #091122;
+    background: #ffffff;
     border: 1px solid var(--panel-border);
     border-radius: 8px;
     padding: 14px 10px;
@@ -899,19 +916,19 @@ body::after {
     box-shadow: var(--card-shadow);
 }
 
-[data-theme="light"] .min-stat-box {
-    background: #ffffff;
+[data-theme="dark"] .min-stat-box {
+    background: #091122;
 }
 
 .min-stat-num {
     font-family: var(--font-heading);
     font-size: 1.35rem;
     font-weight: 800;
-    color: var(--text-primary);
+    color: var(--accent-primary);
 }
 
-[data-theme="light"] .min-stat-num {
-    color: var(--accent-primary);
+[data-theme="dark"] .min-stat-num {
+    color: var(--text-primary);
 }
 
 .min-stat-lbl {
@@ -961,7 +978,7 @@ body::after {
 }
 
 .standing-metric-item {
-    background: rgba(255, 255, 255, 0.01);
+    background: #f8fafc;
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     padding: 10px 14px;
@@ -970,8 +987,8 @@ body::after {
     gap: 3px;
 }
 
-[data-theme="light"] .standing-metric-item {
-    background: #f8fafc;
+[data-theme="dark"] .standing-metric-item {
+    background: rgba(255, 255, 255, 0.01);
 }
 
 .standing-metric-label {
@@ -990,15 +1007,15 @@ body::after {
 }
 
 .standing-insights-box {
-    background: rgba(200, 169, 81, 0.03);
-    border: 1px solid rgba(200, 169, 81, 0.12);
+    background: #fdfbf7;
+    border: 1px solid rgba(200, 169, 81, 0.18);
     border-radius: 8px;
     padding: 14px 16px;
 }
 
-[data-theme="light"] .standing-insights-box {
-    background: #fdfbf7;
-    border-color: rgba(200, 169, 81, 0.18);
+[data-theme="dark"] .standing-insights-box {
+    background: rgba(200, 169, 81, 0.03);
+    border-color: rgba(200, 169, 81, 0.12);
 }
 
 .insights-title {
@@ -1824,4 +1841,423 @@ body::after {
     display: inline-block;
     color: var(--accent-secondary);
     font-weight: 900;
+}
+
+/* ==========================================
+   UX OVERHAUL, MOBILE OPTIMIZATION & REFINEMENTS
+   ========================================== */
+
+/* 1. BUTTON REFINEMENTS & TOUCH TARGETS */
+.btn {
+    height: 44px; /* Accessible 44px height */
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+}
+
+.btn-primary {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background: #183d72; /* Slightly darker Navy Blue */
+    border-color: #183d72;
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(18, 48, 90, 0.15);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1.5px solid var(--panel-border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent-primary);
+    background: rgba(18, 48, 90, 0.03);
+    color: var(--accent-primary);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    border-color: var(--accent-secondary);
+    background: rgba(212, 164, 55, 0.05);
+    color: var(--accent-secondary);
+}
+
+.btn-danger {
+    background: transparent;
+    border: 1.5px solid var(--accent-danger);
+    color: var(--accent-danger);
+}
+
+.btn-danger:hover {
+    background: rgba(220, 38, 38, 0.04);
+    border-color: var(--accent-danger);
+    transform: translateY(-1px);
+}
+
+/* Theme Toggle button padding */
+.theme-toggle-btn {
+    width: 44px;
+    height: 44px;
+}
+
+/* 2. RESPONSIVE DASHBOARD LAYOUT & STATISTICS CARDS */
+.scoreboard-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    align-items: stretch;
+}
+
+@media (min-width: 1025px) {
+    .scoreboard-section {
+        grid-template-columns: 370px 1fr; /* Extra room for enlarged gauge */
+    }
+}
+
+/* Statistics cards grid spacing */
+.grid-stats-box {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .grid-stats-box {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.min-stat-box {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.min-stat-box:hover {
+    border-color: var(--accent-secondary);
+    transform: translateY(-2px);
+}
+
+/* Speedometer circular gauge sizing */
+.gpa-gauge-container {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto;
+}
+
+@media (min-width: 1025px) {
+    .gpa-gauge-container {
+        width: 175px;
+        height: 175px;
+    }
+    
+    .gpa-gauge-container .gauge-value {
+        font-size: 2.2rem;
+    }
+    
+    .gpa-gauge-container .gauge-label {
+        bottom: 24px;
+        font-size: 0.75rem;
+    }
+}
+
+/* 3. RESPONSIVE TYPOGRAPHY Overrides */
+@media (max-width: 767px) {
+    .brand-info h1 {
+        font-size: 1.25rem;
+    }
+    
+    .card-title {
+        font-size: 1.15rem;
+    }
+    
+    .card-subtitle {
+        font-size: 0.75rem;
+    }
+    
+    body {
+        font-size: 0.9rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .brand-info h1 {
+        font-size: 1.6rem;
+    }
+    
+    .card-title {
+        font-size: 1.35rem;
+    }
+}
+
+/* 4. CIRCULAR PROGRESS RING & STATUS PILL (OCR) */
+.ocr-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: auto;
+    margin-right: 15px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-green {
+    background-color: var(--accent-success);
+    box-shadow: 0 0 8px var(--accent-success);
+}
+
+.dot-yellow {
+    background-color: var(--accent-warning);
+    box-shadow: 0 0 8px var(--accent-warning);
+    animation: statusPulse 1s infinite alternate;
+}
+
+.dot-red {
+    background-color: var(--accent-danger);
+    box-shadow: 0 0 8px var(--accent-danger);
+}
+
+@keyframes statusPulse {
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+}
+
+.circular-progress-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 20px auto;
+}
+
+.progress-ring-svg {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-track {
+    stroke: var(--panel-border);
+}
+
+[data-theme="dark"] .progress-ring-track {
+    stroke: #1e2a48;
+}
+
+.progress-ring-fill {
+    transition: stroke-dashoffset 0.4s ease;
+}
+
+.progress-ring-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+}
+
+[data-theme="dark"] .progress-ring-text {
+    color: var(--text-primary);
+}
+
+/* 5. RESPONSIVE CARDS VIEW FOR TABLES ON MOBILE */
+@media (max-width: 767px) {
+    .table-responsive {
+        border: none;
+        background: transparent;
+        overflow-x: visible;
+    }
+    
+    #courses-table, 
+    #courses-table tbody, 
+    #courses-table tr,
+    #ocr-results-table,
+    #ocr-results-table tbody,
+    #ocr-results-table tr {
+        display: block;
+        width: 100%;
+    }
+    
+    #courses-table thead,
+    #ocr-results-table thead {
+        display: none;
+    }
+    
+    /* Courses Table Card View */
+    #courses-table tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        background: var(--panel-bg);
+        border: 1.5px solid var(--panel-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: var(--card-shadow);
+        transition: border-color 0.25s;
+    }
+    
+    #courses-table tr:hover {
+        border-color: var(--accent-secondary);
+    }
+    
+    #courses-table tr td {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: none;
+    }
+    
+    #courses-table tr td:nth-child(1) { grid-column: 1; }
+    #courses-table tr td:nth-child(2) { grid-column: span 2; }
+    #courses-table tr td:nth-child(3) { grid-column: 1; }
+    #courses-table tr td:nth-child(4) { grid-column: 2; }
+    #courses-table tr td:nth-child(5) { grid-column: span 2; margin-top: 4px; }
+    
+    #courses-table tr td::before {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 4px;
+    }
+    
+    #courses-table tr td:nth-child(1)::before { content: "Course Code"; }
+    #courses-table tr td:nth-child(2)::before { content: "Course Name"; }
+    #courses-table tr td:nth-child(3)::before { content: "Credits"; }
+    #courses-table tr td:nth-child(4)::before { content: "Grade"; }
+    #courses-table tr td:nth-child(5)::before { content: ""; }
+    
+    #courses-table tr td:nth-child(5) .btn-remove-row {
+        width: 100% !important;
+        height: 44px !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: rgba(220, 38, 38, 0.03) !important;
+        color: var(--accent-danger) !important;
+        border: 1px solid var(--accent-danger) !important;
+        border-radius: 8px;
+    }
+    
+    #courses-table tr td:nth-child(5) .btn-remove-row::after {
+        content: "Remove Subject";
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    
+    /* OCR Results Table Card View */
+    #ocr-results-table tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        background: var(--panel-bg);
+        border: 1.5px solid var(--panel-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    #ocr-results-table tr td {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: none;
+    }
+    
+    #ocr-results-table tr td:nth-child(1) { grid-column: 1; display: flex; align-items: center; gap: 8px; }
+    #ocr-results-table tr td:nth-child(2) { grid-column: span 2; }
+    #ocr-results-table tr td:nth-child(3) { grid-column: span 2; }
+    #ocr-results-table tr td:nth-child(4) { grid-column: 2; }
+    #ocr-results-table tr td:nth-child(5) { grid-column: 2; }
+    #ocr-results-table tr td:nth-child(6) { grid-column: 1; }
+    
+    #ocr-results-table tr td::before {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 4px;
+    }
+    
+    #ocr-results-table tr td:nth-child(1)::before { content: "Import"; }
+    #ocr-results-table tr td:nth-child(2)::before { content: "Course Code"; }
+    #ocr-results-table tr td:nth-child(3)::before { content: "Course Name"; }
+    #ocr-results-table tr td:nth-child(4)::before { content: "Semester"; }
+    #ocr-results-table tr td:nth-child(5)::before { content: "Grade"; }
+    #ocr-results-table tr td:nth-child(6)::before { content: "Credits"; }
+}
+
+/* 6. MODAL OVERLAY MICRO-INTERACTIONS & POPUPS */
+.modal-overlay {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(4px);
+    background: rgba(18, 48, 90, 0.4);
+}
+
+.modal-content {
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-radius: 16px;
+    border: 1px solid var(--panel-border);
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+/* 7. SEMICIRCLE SPEEDOMETER GAUGE ALIGNMENT */
+.semicircle-gauge .gauge-value {
+    top: 72% !important;
+    font-size: 1.45rem;
+}
+
+.semicircle-gauge .gauge-label {
+    bottom: 8px !important;
+    font-size: 0.6rem;
+}
+
+@media (min-width: 1025px) {
+    .semicircle-gauge .gauge-value {
+        top: 74% !important;
+        font-size: 2.1rem;
+    }
+    
+    .semicircle-gauge .gauge-label {
+        bottom: 12px !important;
+        font-size: 0.75rem;
+    }
 }
