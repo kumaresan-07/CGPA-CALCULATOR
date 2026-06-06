@@ -16,14 +16,10 @@ WORKDIR /app
 COPY server.py /app/
 COPY .python-version /app/
 COPY runtime.txt /app/
+COPY requirements.txt /app/
 
-# Install python dependencies directly to save build steps
-RUN pip install --no-cache-dir \
-    "paddlepaddle>=3.0.0" \
-    paddleocr>=2.7.0 \
-    flask \
-    flask-cors \
-    opencv-python-headless
+# Install python dependencies from requirements file
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Hugging Face Spaces runs on port 7860 by default
 EXPOSE 7860
