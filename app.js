@@ -77,7 +77,7 @@ const CURRICULUM_PRESETS = {
             { code: "CSB144X", title: "Professional Elective III", credits: 3 },
             { code: "CSB144X", title: "Professional Elective IV", credits: 3 },
             { code: "GEA14XX", title: "Management Elective Course", credits: 3 },
-            { code: "CSB1411", title: "Project Phase I", credits: 2 }
+            { code: "CSB1411", title: "Project Work I", credits: 2 }
         ],
         8: [
             { code: "CSB1431", title: "Project Work", credits: 8 }
@@ -161,7 +161,7 @@ const CURRICULUM_PRESETS = {
             { code: "ITC1401", title: "Professional Elective III", credits: 3 },
             { code: "ITC1402", title: "Professional Elective IV", credits: 3 },
             { code: "GEA14XX", title: "Management Elective Course", credits: 3 },
-            { code: "ITB1411", title: "Project Phase I", credits: 2 }
+            { code: "ITB1411", title: "Project Work I", credits: 2 }
         ],
         8: [
             { code: "ITB1421", title: "Project Work / Industrial Training", credits: 10 }
@@ -414,7 +414,7 @@ const CURRICULUM_PRESETS = {
             { code: "EEC144X", title: "Professional Elective IV", credits: 3 },
             { code: "GEA1104", title: "Universal Human Values / Mgt Elective", credits: 3 },
             { code: "GEA1401", title: "Environmental Sciences", credits: 3 },
-            { code: "EEB1411", title: "Project Phase I", credits: 2 }
+            { code: "EEB1411", title: "Project Work I", credits: 2 }
         ],
         8: [
             { code: "EEB1431", title: "Project Work", credits: 8 }
@@ -491,7 +491,7 @@ function generatePreset(deptKey, semesterNum) {
     if (CURRICULUM_PRESETS[deptKey] && CURRICULUM_PRESETS[deptKey][semesterNum]) {
         return JSON.parse(JSON.stringify(CURRICULUM_PRESETS[deptKey][semesterNum]));
     }
-    
+
     // Otherwise, return an empty array (no procedurally generated fallbacks)
     return [];
 }
@@ -552,31 +552,31 @@ function saveLocalStorage() {
 function showToast(message, type = "success") {
     const wrapper = document.getElementById("toast-wrapper");
     if (!wrapper) return;
-    
+
     const toast = document.createElement("div");
     toast.className = `toast toast-${type}`;
-    
+
     let icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
     if (type === "danger") {
         icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
     } else if (type === "info") {
         icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
     }
-    
+
     toast.innerHTML = `
         ${icon}
         <span>${message}</span>
         <button class="toast-close">&times;</button>
     `;
-    
+
     wrapper.appendChild(toast);
-    
+
     // Close button event
     toast.querySelector(".toast-close").addEventListener("click", () => {
         toast.style.animation = "slideOut 0.25s forwards";
         setTimeout(() => toast.remove(), 250);
     });
-    
+
     // Auto-remove after 4.5 seconds
     setTimeout(() => {
         if (toast.parentNode) {
@@ -591,7 +591,7 @@ function calculateSGPA() {
     let totalCredits = 0;
     let totalGradePoints = 0;
     let coursesCount = 0;
-    
+
     appState.courses.forEach(course => {
         const credVal = parseFloat(course.credits);
         if (!isNaN(credVal) && credVal > 0) {
@@ -603,19 +603,19 @@ function calculateSGPA() {
             }
         }
     });
-    
+
     const sgpa = totalCredits > 0 ? (totalGradePoints / totalCredits) : 0;
     const decimals = parseInt(appState.decimals);
-    
+
     // Update visual stats in HTML
     document.getElementById("stat-total-credits").innerText = totalCredits.toFixed(1);
     document.getElementById("stat-grade-points").innerText = totalGradePoints.toFixed(decimals);
     document.getElementById("stat-courses-count").innerText = coursesCount;
     document.getElementById("stat-gpa-scale").innerText = "10.0";
-    
+
     // Update SGPA value display
     document.getElementById("sgpa-val").innerText = sgpa.toFixed(decimals);
-    
+
     // Update circular gauge meter (semicircle)
     const fill = document.getElementById("sgpa-gauge-fill");
     if (fill) {
@@ -624,13 +624,13 @@ function calculateSGPA() {
         const offset = circumference - (percent * circumference);
         fill.style.strokeDashoffset = offset;
     }
-    
+
     // Set descriptive message based on performance
     const label = document.getElementById("sgpa-status-label");
     const desc = document.getElementById("sgpa-status-desc");
-    
+
     const hasArrears = appState.courses.some(course => course.grade === "U" && parseFloat(course.credits) > 0);
-    
+
     if (sgpa === 0) {
         label.innerText = "Semester SGPA Status";
         desc.innerText = "Fill in grades in the course sheet above to see your computed semester grade point average and academic standing insights.";
@@ -653,7 +653,7 @@ function calculateSGPA() {
         label.innerText = "Action Required ⚠️";
         desc.innerText = `Semester SGPA is ${sgpa.toFixed(decimals)}. Your average is below the pass threshold. Please seek academic guidance to clear pending papers.`;
     }
-    
+
     return { sgpa, totalCredits };
 }
 
@@ -662,7 +662,7 @@ function calculateCGPA() {
     let cumulativeProduct = 0;
     let totalCredits = 0;
     let activeSemsCount = 0;
-    
+
     appState.history.forEach(sem => {
         const credits = parseFloat(sem.credits);
         const sgpa = parseFloat(sem.sgpa);
@@ -672,15 +672,15 @@ function calculateCGPA() {
             activeSemsCount++;
         }
     });
-    
+
     const cgpa = totalCredits > 0 ? (cumulativeProduct / totalCredits) : 0;
     const decimals = parseInt(appState.decimals);
-    
+
     // Update summary labels
     document.getElementById("cgpa-active-sems").innerText = activeSemsCount;
     document.getElementById("cgpa-total-credits").innerText = totalCredits.toFixed(1);
     document.getElementById("cgpa-val").innerText = cgpa.toFixed(decimals);
-    
+
     // Update CGPA circular gauge (semicircle)
     const fill = document.getElementById("cgpa-gauge-fill");
     if (fill) {
@@ -689,11 +689,11 @@ function calculateCGPA() {
         const offset = circumference - (percent * circumference);
         fill.style.strokeDashoffset = offset;
     }
-    
+
     // Performance Classification Label
     const classification = document.getElementById("cgpa-classification");
     const classificationSub = document.getElementById("cgpa-classification-sub");
-    
+
     if (cgpa === 0) {
         classification.innerText = "N/A";
         classification.style.color = "var(--text-muted)";
@@ -715,7 +715,7 @@ function calculateCGPA() {
         classification.style.color = "var(--accent-danger)";
         classificationSub.innerText = "Current cumulative scale falls below pass minimum.";
     }
-    
+
     // Re-draw SVG Trend Chart
     renderChart();
 }
@@ -724,17 +724,17 @@ function calculateCGPA() {
 function renderCourseTable() {
     const tbody = document.getElementById("courses-tbody");
     tbody.innerHTML = "";
-    
+
     appState.courses.forEach((course, index) => {
         const tr = document.createElement("tr");
-        
+
         // Generate options for grades
         let gradeOptions = "";
         Object.keys(appState.gradeScale).forEach(gradeKey => {
             const selected = course.grade === gradeKey ? "selected" : "";
             gradeOptions += `<option value="${gradeKey}" ${selected}>${gradeKey}</option>`;
         });
-        
+
         tr.innerHTML = `
             <td>
                 <input type="text" class="table-input input-code" value="${course.code}" placeholder="CS3101" data-index="${index}" data-field="code">
@@ -758,10 +758,10 @@ function renderCourseTable() {
                 </button>
             </td>
         `;
-        
+
         tbody.appendChild(tr);
     });
-    
+
     // Add Event Listeners for inline inputs
     tbody.querySelectorAll(".table-input").forEach(input => {
         input.addEventListener("input", handleTableInput);
@@ -772,7 +772,7 @@ function renderCourseTable() {
     tbody.querySelectorAll(".btn-remove-row").forEach(btn => {
         btn.addEventListener("click", deleteRow);
     });
-    
+
     // Recalculate SGPA
     calculateSGPA();
 }
@@ -782,12 +782,12 @@ function handleTableInput(e) {
     const index = parseInt(e.target.dataset.index);
     const field = e.target.dataset.field;
     let val = e.target.value;
-    
+
     if (field === "credits") {
         val = parseFloat(val);
         if (isNaN(val) || val < 0) val = 0;
     }
-    
+
     appState.courses[index][field] = val;
     calculateSGPA();
     saveLocalStorage();
@@ -826,18 +826,18 @@ function loadPresetCurriculum() {
 // SAVE CURRENT SEMESTER RESULT TO HISTORY TIMELINE
 function saveSemester() {
     const { sgpa, totalCredits } = calculateSGPA();
-    
+
     if (totalCredits === 0) {
         showToast("Cannot save a semester with zero credits! Add some courses.", "danger");
         return;
     }
-    
+
     // Verify if this semester is already saved in history
-    const existingIndex = appState.history.findIndex(item => 
-        item.dept === appState.selectedDept && 
+    const existingIndex = appState.history.findIndex(item =>
+        item.dept === appState.selectedDept &&
         item.sem === appState.selectedSem
     );
-    
+
     const semesterData = {
         id: Date.now(),
         dept: appState.selectedDept,
@@ -848,7 +848,7 @@ function saveSemester() {
         credits: totalCredits,
         regulation: appState.regulations
     };
-    
+
     if (existingIndex >= 0) {
         // Overwrite
         appState.history[existingIndex] = semesterData;
@@ -858,10 +858,10 @@ function saveSemester() {
         appState.history.push(semesterData);
         showToast(`Saved Semester ${appState.selectedSem} performance to dashboard.`);
     }
-    
+
     // Sort history by semester number
     appState.history.sort((a, b) => parseInt(a.sem) - parseInt(b.sem));
-    
+
     renderHistoryTimeline();
     calculateCGPA();
     saveLocalStorage();
@@ -871,25 +871,25 @@ function saveSemester() {
 function renderHistoryTimeline() {
     const container = document.getElementById("history-timeline-container");
     const noHistory = document.getElementById("no-history-text");
-    
+
     // Clean old timeline items
     const oldItems = container.querySelectorAll(".timeline-item");
     oldItems.forEach(item => item.remove());
-    
+
     if (appState.history.length === 0) {
         noHistory.style.display = "block";
         return;
     }
-    
+
     noHistory.style.display = "none";
-    
+
     appState.history.forEach((sem, index) => {
         const item = document.createElement("div");
         item.className = "timeline-item";
-        
+
         const deptText = DEPT_INFO[sem.dept]?.name || sem.dept;
         const decimals = parseInt(appState.decimals);
-        
+
         item.innerHTML = `
             <div class="timeline-marker"></div>
             <div class="timeline-content">
@@ -905,10 +905,10 @@ function renderHistoryTimeline() {
                 </div>
             </div>
         `;
-        
+
         container.appendChild(item);
     });
-    
+
     container.querySelectorAll(".btn-remove-timeline").forEach(btn => {
         btn.addEventListener("click", deleteHistoryItem);
     });
@@ -919,7 +919,7 @@ function deleteHistoryItem(e) {
     const index = parseInt(e.currentTarget.dataset.index);
     const semNum = appState.history[index].sem;
     appState.history.splice(index, 1);
-    
+
     renderHistoryTimeline();
     calculateCGPA();
     showToast(`Removed Semester ${semNum} from cumulative dashboard.`);
@@ -934,39 +934,39 @@ function renderChart() {
     const pointsGroup = document.getElementById("chart-points-group");
     const labelsGroup = document.getElementById("chart-labels-group");
     const gridLines = document.getElementById("chart-grid-lines");
-    
+
     // Clear dynamic chart children
     pointsGroup.innerHTML = "";
     labelsGroup.innerHTML = "";
     gridLines.innerHTML = "";
     linePath.setAttribute("d", "");
     areaPath.setAttribute("d", "");
-    
+
     if (appState.history.length === 0) return;
-    
+
     const svgWidth = svg.clientWidth || 700;
     const svgHeight = svg.clientHeight || 180;
     const paddingX = 40;
     const paddingY = 25;
-    
+
     const historyPoints = appState.history;
     const numPoints = historyPoints.length;
-    
+
     // Helper coordinates mapping
     const getX = (index) => {
         if (numPoints <= 1) return svgWidth / 2;
         return paddingX + (index * (svgWidth - 2 * paddingX) / (numPoints - 1));
     };
-    
+
     const getY = (gpa) => {
         // Map 0.0 - 10.0 scale to chart height
         const minGpa = 4.0; // clamp min display to 4.0 for nice curve detail, or 0.0
         const maxGpa = 10.0;
         const effectiveGpa = Math.max(minGpa, Math.min(maxGpa, gpa));
-        
+
         return svgHeight - paddingY - ((effectiveGpa - minGpa) * (svgHeight - 2 * paddingY) / (maxGpa - minGpa));
     };
-    
+
     // 1. Draw horizontal grid lines (for grades 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
     for (let g = 5; g <= 10; g++) {
         const y = getY(g);
@@ -978,7 +978,7 @@ function renderChart() {
         line.setAttribute("stroke", "rgba(255, 255, 255, 0.04)");
         line.setAttribute("stroke-width", "1");
         gridLines.appendChild(line);
-        
+
         // Add axis grid labels on left
         const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("x", paddingX - 10);
@@ -989,15 +989,15 @@ function renderChart() {
         text.textContent = g.toFixed(0);
         gridLines.appendChild(text);
     }
-    
+
     // 2. Generate line coordinates path
     let pathD = "";
     let areaD = "";
-    
+
     historyPoints.forEach((sem, idx) => {
         const x = getX(idx);
         const y = getY(sem.sgpa);
-        
+
         if (idx === 0) {
             pathD = `M ${x} ${y}`;
             areaD = `M ${x} ${svgHeight - paddingY} L ${x} ${y}`;
@@ -1005,7 +1005,7 @@ function renderChart() {
             pathD += ` L ${x} ${y}`;
             areaD += ` L ${x} ${y}`;
         }
-        
+
         // 3. Draw dot markers
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", x);
@@ -1014,7 +1014,7 @@ function renderChart() {
         circle.setAttribute("class", "chart-point");
         circle.setAttribute("title", `Semester ${sem.sem}: ${sem.sgpa.toFixed(2)}`);
         pointsGroup.appendChild(circle);
-        
+
         // 4. Draw labels on markers
         const valText = document.createElementNS("http://www.w3.org/2000/svg", "text");
         valText.setAttribute("x", x);
@@ -1025,7 +1025,7 @@ function renderChart() {
         valText.setAttribute("text-anchor", "middle");
         valText.textContent = sem.sgpa.toFixed(appState.decimals);
         labelsGroup.appendChild(valText);
-        
+
         // Axis label (Semester Numbers)
         const semLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
         semLabel.setAttribute("x", x);
@@ -1037,11 +1037,11 @@ function renderChart() {
         semLabel.textContent = `Sem ${sem.sem}`;
         labelsGroup.appendChild(semLabel);
     });
-    
+
     // Finish drawing paths
     if (numPoints > 0) {
         linePath.setAttribute("d", pathD);
-        
+
         const lastX = getX(numPoints - 1);
         areaD += ` L ${lastX} ${svgHeight - paddingY} Z`;
         areaPath.setAttribute("d", areaD);
@@ -1052,11 +1052,11 @@ function renderChart() {
 function renderSettingsTab() {
     const container = document.getElementById("grade-mappings-container");
     container.innerHTML = "";
-    
+
     Object.keys(appState.gradeScale).forEach(gradeKey => {
         const row = document.createElement("div");
         row.className = "grade-row-config";
-        
+
         row.innerHTML = `
             <span class="grade-name">
                 <span class="grade-badge grade-${gradeKey.replace('+', '-plus')}">${gradeKey}</span>
@@ -1064,10 +1064,10 @@ function renderSettingsTab() {
             </span>
             <input type="number" step="0.5" min="0" max="100" class="table-input scale-point-input" data-grade="${gradeKey}" value="${appState.gradeScale[gradeKey]}">
         `;
-        
+
         container.appendChild(row);
     });
-    
+
     // Attach listener for config updates
     container.querySelectorAll(".scale-point-input").forEach(input => {
         input.addEventListener("input", (e) => {
@@ -1087,7 +1087,7 @@ function renderSettingsTab() {
 function syncYearAndSemester(source) {
     const yearSelect = document.getElementById("select-year");
     const semSelect = document.getElementById("select-semester");
-    
+
     if (source === "year") {
         const year = parseInt(yearSelect.value);
         // Map Year to starting semester of that year
@@ -1103,7 +1103,7 @@ function syncYearAndSemester(source) {
         appState.selectedYear = targetYear.toString();
         appState.selectedSem = sem.toString();
     }
-    
+
     // Update headers and reload default courses
     updateCurriculumHeaders();
     loadPresetCurriculum();
@@ -1114,7 +1114,7 @@ function updateCurriculumHeaders() {
     const deptText = DEPT_INFO[appState.selectedDept]?.name || appState.selectedDept;
     const titleText = `Course Sheet: ${deptText}`;
     const subtitleText = `Manage subjects, credits, and grade values for Semester ${appState.selectedSem} (${appState.regulations})`;
-    
+
     document.getElementById("calc-title").innerHTML = `
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
         ${titleText}
@@ -1132,10 +1132,10 @@ function exportPDF() {
     document.getElementById("print-date").innerText = new Date().toLocaleDateString("en-IN", {
         year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
     });
-    
+
     const sgpaVal = document.getElementById("sgpa-val").innerText;
     document.getElementById("print-sgpa").innerText = sgpaVal;
-    
+
     // Trigger native printing system
     window.print();
 }
@@ -1155,14 +1155,14 @@ function resetApp() {
             theme: "light",
             regulations: "Regulations 2022"
         };
-        
+
         // Reset Selector values
         document.getElementById("select-department").value = "cse";
         document.getElementById("select-year").value = "1";
         document.getElementById("select-semester").value = "1";
         document.getElementById("select-decimal-places").value = "2";
         document.getElementById("input-custom-regulations").value = "Regulations 2022";
-        
+
         // Reload all modules
         applyTheme(appState.theme);
         updateCurriculumHeaders();
@@ -1170,7 +1170,7 @@ function resetApp() {
         renderHistoryTimeline();
         calculateCGPA();
         renderSettingsTab();
-        
+
         showToast("Application has been reset to defaults successfully.", "info");
     }
 }
@@ -1181,7 +1181,7 @@ function applyTheme(theme) {
     const toggle = document.getElementById("theme-toggle");
     const sun = toggle.querySelector(".sun-icon");
     const moon = toggle.querySelector(".moon-icon");
-    
+
     if (theme === "light") {
         sun.style.display = "block";
         moon.style.display = "none";
@@ -1197,24 +1197,24 @@ function applyTheme(theme) {
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Load details from disk
     loadLocalStorage();
-    
+
     // 2. Set active theme
     applyTheme(appState.theme);
-    
+
     // 3. Set drop-down select values from state
     document.getElementById("select-department").value = appState.selectedDept;
     document.getElementById("select-year").value = appState.selectedYear;
     document.getElementById("select-semester").value = appState.selectedSem;
     document.getElementById("select-decimal-places").value = appState.decimals.toString();
     document.getElementById("input-custom-regulations").value = appState.regulations;
-    
+
     // 4. Setup navigation tabs action listeners
     const tabs = {
         "tab-calc": "calc-card",
         "tab-history": "history-card",
         "tab-settings": "settings-card"
     };
-    
+
     Object.keys(tabs).forEach(tabId => {
         const btn = document.getElementById(tabId);
         btn.addEventListener("click", () => {
@@ -1223,33 +1223,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById(id).classList.remove("active");
                 document.getElementById(tabs[id]).classList.remove("active");
             });
-            
+
             // Set active tab
             btn.classList.add("active");
             document.getElementById(tabs[tabId]).classList.add("active");
-            
+
             // Handle specific tab animations/drawing
             if (tabId === "tab-history") {
                 renderChart();
             }
         });
     });
-    
+
     // 5. Setup sidebar drop-down select change listeners
     document.getElementById("select-department").addEventListener("change", (e) => {
         appState.selectedDept = e.target.value;
         updateCurriculumHeaders();
         loadPresetCurriculum();
     });
-    
+
     document.getElementById("select-year").addEventListener("change", () => {
         syncYearAndSemester("year");
     });
-    
+
     document.getElementById("select-semester").addEventListener("change", () => {
         syncYearAndSemester("semester");
     });
-    
+
     // 6. Setup buttons action listeners
     document.getElementById("btn-add-row").addEventListener("click", addRow);
     document.getElementById("btn-clear-grades").addEventListener("click", () => {
@@ -1261,13 +1261,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-save-semester").addEventListener("click", saveSemester);
     document.getElementById("btn-export-pdf").addEventListener("click", exportPDF);
     document.getElementById("btn-reset-app").addEventListener("click", resetApp);
-    
+
     // Theme toggle click
     document.getElementById("theme-toggle").addEventListener("click", () => {
         const newTheme = appState.theme === "dark" ? "light" : "dark";
         applyTheme(newTheme);
     });
-    
+
     // Decimal precision change
     document.getElementById("select-decimal-places").addEventListener("change", (e) => {
         appState.decimals = parseInt(e.target.value);
@@ -1276,25 +1276,25 @@ document.addEventListener("DOMContentLoaded", () => {
         renderSettingsTab();
         saveLocalStorage();
     });
-    
+
     // Regulation text input change
     document.getElementById("input-custom-regulations").addEventListener("input", (e) => {
         appState.regulations = e.target.value;
         updateCurriculumHeaders();
         saveLocalStorage();
     });
-    
+
     // 7. Load default courses if state is empty, else run renderer
     if (appState.courses.length === 0) {
         appState.courses = generatePreset(appState.selectedDept, appState.selectedSem);
     }
-    
+
     updateCurriculumHeaders();
     renderCourseTable();
     renderHistoryTimeline();
     calculateCGPA();
     renderSettingsTab();
-    
+
     setupOCRScanner();
 
     // Responsive chart draw on resize
@@ -1319,42 +1319,42 @@ function setupOCRScanner() {
     const btnClose = document.getElementById("btn-close-ocr-modal");
     const btnCancel = document.getElementById("btn-cancel-ocr");
     const btnImport = document.getElementById("btn-import-ocr");
-    
+
     const dragDropZone = document.getElementById("ocr-drag-drop");
     const fileInput = document.getElementById("ocr-file-input");
-    
+
     // Open Modal
     btnOpen.addEventListener("click", () => {
         resetOCRModal();
         modal.classList.add("active");
     });
-    
+
     // Close Modal
     [btnClose, btnCancel].forEach(btn => {
         btn.addEventListener("click", () => {
             modal.classList.remove("active");
         });
     });
-    
+
     // Close on overlay click
     modal.addEventListener("click", (e) => {
         if (e.target === modal) {
             modal.classList.remove("active");
         }
     });
-    
+
     // Drag & Drop
     dragDropZone.addEventListener("click", () => fileInput.click());
-    
+
     dragDropZone.addEventListener("dragover", (e) => {
         e.preventDefault();
         dragDropZone.classList.add("dragover");
     });
-    
+
     dragDropZone.addEventListener("dragleave", () => {
         dragDropZone.classList.remove("dragover");
     });
-    
+
     dragDropZone.addEventListener("drop", (e) => {
         e.preventDefault();
         dragDropZone.classList.remove("dragover");
@@ -1362,13 +1362,13 @@ function setupOCRScanner() {
             handleOCRFile(e.dataTransfer.files[0]);
         }
     });
-    
+
     fileInput.addEventListener("change", (e) => {
         if (e.target.files.length > 0) {
             handleOCRFile(e.target.files[0]);
         }
     });
-    
+
     // Select All Checkbox
     document.getElementById("ocr-select-all").addEventListener("change", (e) => {
         const checked = e.target.checked;
@@ -1377,24 +1377,24 @@ function setupOCRScanner() {
         });
         toggleImportButtonState();
     });
-    
+
     // Import Click
     btnImport.addEventListener("click", () => {
         if (!ocrExtractedData || !ocrExtractedData.courses) return;
-        
+
         const selectedCourses = [];
         const checkboxes = document.querySelectorAll(".ocr-row-checkbox:checked");
-        
+
         checkboxes.forEach(cb => {
             const index = parseInt(cb.dataset.index);
             const rawCourse = ocrExtractedData.courses[index];
-            
+
             const row = cb.closest("tr");
             const code = row.querySelector(".ocr-input-code").value.trim().toUpperCase();
             const title = row.querySelector(".ocr-input-title").value.trim();
             const credits = parseFloat(row.querySelector(".ocr-input-credits").value) || 3;
             const grade = row.querySelector(".ocr-select-grade").value;
-            
+
             selectedCourses.push({
                 code: code || rawCourse.code,
                 title: title || rawCourse.title,
@@ -1402,12 +1402,12 @@ function setupOCRScanner() {
                 grade: grade
             });
         });
-        
+
         if (selectedCourses.length === 0) {
             showToast("No courses selected for import!", "danger");
             return;
         }
-        
+
         // Automatically update academic filters to match the scanned document on import
         if (ocrExtractedData.department) {
             appState.selectedDept = ocrExtractedData.department;
@@ -1415,35 +1415,35 @@ function setupOCRScanner() {
         if (ocrExtractedData.semester) {
             appState.selectedSem = ocrExtractedData.semester.toString();
         }
-        
+
         if (appState.courses.length > 0) {
             const targetDeptName = DEPT_INFO[appState.selectedDept]?.name || appState.selectedDept;
             if (!confirm(`This will import the scanned courses to ${targetDeptName} - Semester ${appState.selectedSem}. Continue?`)) {
                 return;
             }
         }
-        
+
         // Merge scanned courses with target curriculum presets to avoid excluding missing subjects
         const targetDept = appState.selectedDept;
         const targetSem = appState.selectedSem;
         const presets = generatePreset(targetDept, targetSem);
         const finalCourses = [];
         const mergedScannedIndices = new Set();
-        
+
         if (presets && presets.length > 0) {
             presets.forEach(p => {
                 const matchIndex = selectedCourses.findIndex((sc, scIdx) => {
                     if (mergedScannedIndices.has(scIdx)) return false;
                     const cleanScCode = sc.code.toUpperCase().replace(/^\d{2}/, "");
                     const cleanPCode = p.code.toUpperCase().replace(/^\d{2}/, "");
-                    
+
                     if (cleanPCode === cleanScCode) return true;
-                    
+
                     if (p.code.includes("/")) {
                         const codes = p.code.split("/").map(c => c.trim().toUpperCase().replace(/^\d{2}/, ""));
                         if (codes.includes(cleanScCode)) return true;
                     }
-                    
+
                     if (p.code.includes("XX")) {
                         const prefix = p.code.split("XX")[0].toUpperCase().replace(/^\d{2}/, "");
                         if (cleanScCode.startsWith(prefix)) return true;
@@ -1452,19 +1452,19 @@ function setupOCRScanner() {
                         const prefix = p.code.split("XXXX")[0].toUpperCase().replace(/^\d{2}/, "");
                         if (cleanScCode.startsWith(prefix)) return true;
                     }
-                    
+
                     const cleanPTitle = p.title.toLowerCase().replace(/[^a-z0-9]/g, "");
                     const cleanScTitle = sc.title.toLowerCase().replace(/[^a-z0-9]/g, "");
                     if (cleanPTitle === cleanScTitle) return true;
-                    
+
                     if (p.title.includes("/")) {
                         const titles = p.title.split("/").map(t => t.trim().toLowerCase().replace(/[^a-z0-9]/g, ""));
                         if (titles.includes(cleanScTitle)) return true;
                     }
-                    
+
                     return false;
                 });
-                
+
                 if (matchIndex >= 0) {
                     const sc = selectedCourses[matchIndex];
                     finalCourses.push({
@@ -1483,7 +1483,7 @@ function setupOCRScanner() {
                     });
                 }
             });
-            
+
             // Add custom scanned courses that didn't match presets
             selectedCourses.forEach((sc, scIdx) => {
                 if (!mergedScannedIndices.has(scIdx)) {
@@ -1493,23 +1493,23 @@ function setupOCRScanner() {
         } else {
             finalCourses.push(...selectedCourses);
         }
-        
+
         // Update state and selectors
         appState.courses = finalCourses;
-        
+
         document.getElementById("select-department").value = appState.selectedDept;
         document.getElementById("select-semester").value = appState.selectedSem;
-        
+
         const targetYear = Math.ceil(parseInt(appState.selectedSem) / 2);
         document.getElementById("select-year").value = targetYear.toString();
         appState.selectedYear = targetYear.toString();
-        
+
         // Render & Update
         updateCurriculumHeaders();
         renderCourseTable();
         calculateSGPA();
         saveLocalStorage();
-        
+
         showToast(`Successfully imported ${selectedCourses.length} courses (merged with preset)!`);
         modal.classList.remove("active");
     });
@@ -1530,10 +1530,10 @@ function resetOCRModal() {
 function updateScannerStatus(state) {
     const pill = document.getElementById("ocr-status-pill");
     if (!pill) return;
-    
+
     const dot = pill.querySelector(".status-dot");
     const text = pill.querySelector(".status-text");
-    
+
     if (state === "ready") {
         dot.className = "status-dot dot-green";
         text.innerText = "Scanner Ready";
@@ -1550,7 +1550,7 @@ function startOCRProgressBarAnimation() {
     const statusMsg = document.getElementById("ocr-status-message");
     const progressFill = document.getElementById("ocr-progress-ring-fill");
     const progressPercentText = document.getElementById("ocr-progress-percent");
-    
+
     const messages = [
         { progress: 15, text: "Uploading Grade Sheet..." },
         { progress: 35, text: "Analyzing Academic Record..." },
@@ -1558,10 +1558,10 @@ function startOCRProgressBarAnimation() {
         { progress: 85, text: "Calculating SGPA..." },
         { progress: 95, text: "Preparing Results..." }
     ];
-    
+
     let currentStep = 0;
     const circumference = 2 * Math.PI * 50; // 314.16
-    
+
     const setProgress = (percent) => {
         if (progressPercentText) progressPercentText.innerText = `${Math.round(percent)}%`;
         if (progressFill) {
@@ -1569,9 +1569,9 @@ function startOCRProgressBarAnimation() {
             progressFill.style.strokeDashoffset = offset;
         }
     };
-    
+
     setProgress(0);
-    
+
     const intervalId = setInterval(() => {
         if (currentStep < messages.length) {
             setProgress(messages[currentStep].progress);
@@ -1579,7 +1579,7 @@ function startOCRProgressBarAnimation() {
             currentStep++;
         }
     }, 1000);
-    
+
     return {
         stop: (success = true) => {
             clearInterval(intervalId);
@@ -1596,56 +1596,56 @@ function handleOCRFile(file) {
         showToast("Please upload a valid image file (PNG, JPG, JPEG).", "danger");
         return;
     }
-    
+
     document.getElementById("ocr-step-upload").style.display = "none";
     document.getElementById("ocr-step-processing").style.display = "block";
-    
+
     // Update status to processing (Yellow 🟡)
     updateScannerStatus("processing");
-    
+
     // Start circular loader animation
     const loader = startOCRProgressBarAnimation();
-    
+
     const engine = document.getElementById("select-ocr-engine") ? document.getElementById("select-ocr-engine").value : "ocrspace";
-    
+
     const formData = new FormData();
     formData.append("image", file);
     formData.append("engine", engine);
-    
+
     fetch(OCR_BACKEND_URL, {
         method: "POST",
         body: formData
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Server returned status ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        loader.stop(true);
-        updateScannerStatus("ready"); // Status ready (Green 🟢)
-        setTimeout(() => {
-            displayOCRResults(data);
-        }, 500);
-    })
-    .catch(error => {
-        console.error("OCR API error: ", error);
-        loader.stop(false);
-        resetOCRModal();
-        updateScannerStatus("error"); // Status error (Red 🔴)
-        showToast("OCR processing failed. Make sure the local server is running.", "danger");
-        showOCROfflineInstructions();
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned status ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            loader.stop(true);
+            updateScannerStatus("ready"); // Status ready (Green 🟢)
+            setTimeout(() => {
+                displayOCRResults(data);
+            }, 500);
+        })
+        .catch(error => {
+            console.error("OCR API error: ", error);
+            loader.stop(false);
+            resetOCRModal();
+            updateScannerStatus("error"); // Status error (Red 🔴)
+            showToast("OCR processing failed. Make sure the local server is running.", "danger");
+            showOCROfflineInstructions();
+        });
 }
 
 function showOCROfflineInstructions() {
     const modal = document.getElementById("ocr-modal");
     modal.classList.add("active");
-    
+
     const stepUpload = document.getElementById("ocr-step-upload");
     stepUpload.style.display = "block";
-    
+
     let guide = document.getElementById("ocr-offline-guide");
     if (!guide) {
         guide = document.createElement("div");
@@ -1674,25 +1674,25 @@ function showOCROfflineInstructions() {
 
 function displayOCRResults(data) {
     ocrExtractedData = data;
-    
+
     const guide = document.getElementById("ocr-offline-guide");
     if (guide) guide.remove();
-    
+
     document.getElementById("ocr-step-processing").style.display = "none";
     document.getElementById("ocr-step-results").style.display = "block";
-    
+
     const btnImport = document.getElementById("btn-import-ocr");
     btnImport.style.display = "inline-flex";
     btnImport.disabled = false;
-    
+
     const detectedDept = data.department;
     const detectedSem = data.semester ? data.semester.toString() : null;
-    
+
     const deptInfo = DEPT_INFO[detectedDept];
     document.getElementById("ocr-det-dept").innerText = deptInfo ? deptInfo.name : (detectedDept || "Unknown");
     document.getElementById("ocr-det-sem").innerText = detectedSem ? `Semester ${detectedSem}` : "Unknown";
     document.getElementById("ocr-det-count").innerText = data.courses ? data.courses.length : 0;
-    
+
     renderOCRResultsTable();
     checkOCRFilterMismatch(detectedDept, detectedSem);
 }
@@ -1700,33 +1700,33 @@ function displayOCRResults(data) {
 function renderOCRResultsTable() {
     const tbody = document.getElementById("ocr-results-tbody");
     tbody.innerHTML = "";
-    
+
     if (!ocrExtractedData || !ocrExtractedData.courses || ocrExtractedData.courses.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No courses extracted from image.</td></tr>`;
         return;
     }
-    
+
     const targetDept = ocrExtractedData.department || appState.selectedDept;
     const targetSem = ocrExtractedData.semester ? ocrExtractedData.semester.toString() : appState.selectedSem;
-    
+
     const presets = generatePreset(targetDept, targetSem);
-    
+
     ocrExtractedData.courses.forEach((course, index) => {
-        let matchedCredits = 3; 
+        let matchedCredits = 3;
         let isMatched = false;
-        
+
         if (presets && presets.length > 0) {
             const match = presets.find(p => {
                 const cleanScCode = course.code.toUpperCase().replace(/^\d{2}/, "");
                 const cleanPCode = p.code.toUpperCase().replace(/^\d{2}/, "");
-                
+
                 if (cleanPCode === cleanScCode) return true;
-                
+
                 if (p.code.includes("/")) {
                     const codes = p.code.split("/").map(c => c.trim().toUpperCase().replace(/^\d{2}/, ""));
                     if (codes.includes(cleanScCode)) return true;
                 }
-                
+
                 if (p.code.includes("XX")) {
                     const prefix = p.code.split("XX")[0].toUpperCase().replace(/^\d{2}/, "");
                     if (cleanScCode.startsWith(prefix)) return true;
@@ -1735,19 +1735,25 @@ function renderOCRResultsTable() {
                     const prefix = p.code.split("XXXX")[0].toUpperCase().replace(/^\d{2}/, "");
                     if (cleanScCode.startsWith(prefix)) return true;
                 }
-                
-                const cleanPresetTitle = p.title.toLowerCase().replace(/[^a-z0-9]/g, "");
-                const cleanCourseTitle = course.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+                const normalizeTitle = (t) => {
+                    const clean = t.toLowerCase().replace(/[^a-z0-9]/g, "");
+                    if (clean === "projectphaseii" || clean === "projectphase2") return "projectwork";
+                    if (clean === "projectphasei" || clean === "projectphase1") return "projectworki";
+                    return clean;
+                };
+                const cleanPresetTitle = normalizeTitle(p.title);
+                const cleanCourseTitle = normalizeTitle(course.title);
                 if (cleanPresetTitle === cleanCourseTitle) return true;
-                
+
                 if (p.title.includes("/")) {
-                    const titles = p.title.split("/").map(t => t.trim().toLowerCase().replace(/[^a-z0-9]/g, ""));
+                    const titles = p.title.split("/").map(t => normalizeTitle(t));
                     if (titles.includes(cleanCourseTitle)) return true;
                 }
-                
+
                 return false;
             });
-            
+
             if (match) {
                 matchedCredits = match.credits;
                 isMatched = true;
@@ -1755,25 +1761,25 @@ function renderOCRResultsTable() {
                 const titleUpper = course.title.toUpperCase();
                 if (titleUpper.includes("LABORATORY") || titleUpper.includes("PRACTICAL") || titleUpper.includes("WORKSHOP") || titleUpper.includes("LAB")) {
                     matchedCredits = 1.0;
-                } else if (titleUpper.includes("PROJECT PHASE II") || titleUpper.includes("PROJECT WORK")) {
+                } else if (titleUpper.includes("PROJECT PHASE II") || (titleUpper.includes("PROJECT WORK") && !titleUpper.includes("PROJECT WORK I") && !titleUpper.includes("PROJECT WORK 1"))) {
                     matchedCredits = (targetDept === "ai-ml") ? 16.0 : 8.0;
                 } else if (titleUpper.includes("PROJECT")) {
                     matchedCredits = 2.0;
                 }
             }
         }
-        
+
         let gradeOptions = "";
         Object.keys(appState.gradeScale).forEach(gradeKey => {
             const selected = course.grade === gradeKey ? "selected" : "";
             gradeOptions += `<option value="${gradeKey}" ${selected}>${gradeKey}</option>`;
         });
-        
+
         const tr = document.createElement("tr");
         if (isMatched) {
             tr.style.background = "rgba(16, 185, 129, 0.02)";
         }
-        
+
         tr.innerHTML = `
             <td style="text-align: center; vertical-align: middle;">
                 <input type="checkbox" class="ocr-row-checkbox" data-index="${index}" checked>
@@ -1799,10 +1805,10 @@ function renderOCRResultsTable() {
                 ${isMatched ? '<span style="color: var(--accent-success); font-size: 0.7rem; display: block; text-align: center; margin-top: 2px;">Linked</span>' : ''}
             </td>
         `;
-        
+
         tbody.appendChild(tr);
     });
-    
+
     tbody.querySelectorAll(".ocr-row-checkbox").forEach(cb => {
         cb.addEventListener("change", toggleImportButtonState);
     });
@@ -1819,14 +1825,14 @@ function toggleImportButtonState() {
 function checkOCRFilterMismatch(detectedDept, detectedSem) {
     const alertsContainer = document.getElementById("ocr-alerts-container");
     alertsContainer.innerHTML = "";
-    
+
     const deptMismatch = detectedDept && detectedDept !== appState.selectedDept;
     const semMismatch = detectedSem && detectedSem !== appState.selectedSem;
-    
+
     if (deptMismatch || semMismatch) {
         const activeDeptName = DEPT_INFO[appState.selectedDept]?.name || appState.selectedDept;
         const detDeptName = DEPT_INFO[detectedDept]?.name || detectedDept;
-        
+
         let msg = "The scanned grade sheet details do not match your current selection filter.";
         if (deptMismatch && semMismatch) {
             msg = `Detected grade sheet belongs to <strong>${detDeptName} (Semester ${detectedSem})</strong>, but your active sheet is set to <strong>${activeDeptName} (Semester ${appState.selectedSem})</strong>.`;
@@ -1835,7 +1841,7 @@ function checkOCRFilterMismatch(detectedDept, detectedSem) {
         } else if (semMismatch) {
             msg = `Detected semester is <strong>Semester ${detectedSem}</strong>, but your active sheet is set to <strong>Semester ${appState.selectedSem}</strong>.`;
         }
-        
+
         const alertDiv = document.createElement("div");
         alertDiv.className = "ocr-alert";
         alertDiv.innerHTML = `
@@ -1851,13 +1857,13 @@ function checkOCRFilterMismatch(detectedDept, detectedSem) {
                 <button class="ocr-alert-action-btn" id="ocr-alert-switch-btn">Switch Filters to Match</button>
             </div>
         `;
-        
+
         alertsContainer.appendChild(alertDiv);
-        
+
         document.getElementById("ocr-alert-switch-btn").addEventListener("click", () => {
             if (detectedDept) appState.selectedDept = detectedDept;
             if (detectedSem) appState.selectedSem = detectedSem;
-            
+
             renderOCRResultsTable();
             showToast("Switched selectors to match scanned document.");
             alertsContainer.innerHTML = "";
