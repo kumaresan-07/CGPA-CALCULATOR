@@ -334,7 +334,7 @@ const CURRICULUM_PRESETS = {
             { code: "CBC14xx", title: "Professional Elective– VI", credits: 4 }
         ],
         8: [
-            { code: "CBB1431", title: "Project Evaluation", credits: 7 }
+            { code: "CBB1431", title: "Project Work", credits: 7 }
         ]
     },
     // EEE Curriculum Presets
