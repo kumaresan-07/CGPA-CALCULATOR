@@ -130,7 +130,7 @@ const CURRICULUM_PRESETS = {
             { code: "CGB1221", title: "Database Management Systems", credits: 4 },
             { code: "CGB1231", title: "Artificial Intelligence and Machine Learning Laboratory", credits: 1 },
             { code: "CGB1232", title: "Operating Systems Laboratory", credits: 1 },
-            { code: "ITB1231", title: "Object Oriented Modelling Laboratory (Design Thinking)", credits: 2 },
+            { code: "ITB1231", title: "Object Oriented Modelling Laboratory (Design Thinking)", credits: 1 },
             { code: "GEA1221", title: "Career Skill Development III", credits: 1 }
         ],
         5: [
